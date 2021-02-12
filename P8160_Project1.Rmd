@@ -1,0 +1,132 @@
+---
+title: "P8160Project1"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+require(survival)
+require(quantreg)
+require(glmnet)
+require(MASS)
+require(pROC)
+library(simsurv)
+library(flexsurv)
+
+set.seed(2019)
+```
+
+
+## Project 1: Design a simulation study to compare three survival models
+
+**Background:** Proportional hazards model is one of the primary approaches to investigate the efficacy of a treatment ($X$)  on a survival time $T$.  It assumes that the hazard ratio for the $i$-th patient  at  a time $t$ is
+$$h_i(t) = h_0(t) exp(x_i\theta),$$
+where 
+\begin{itemize}
+
+\item $h_0(t)$ is the baseline hazard function, 
+
+\item $x_i$ is a binary treatment indicator variable coded 0 for control and 1 for the treatment 
+
+\item $\theta$ is the parameter of interest, which is the log hazard ratio for the treatment effect. $\theta$ measures the relative hazard reduction due to treatment in comparison to the control.
+\end{itemize}
+
+
+This approach is referred to as **proportional hazards** because the hazard rate
+$$\frac{h(t \vert x_1)}{h(t \vert x_2)} = \exp[\beta^T (x_1 - x_2)]$$
+does not depend on $t$.
+There are different ways to formulate the baseline hazard function $h_0(t)$, which lead to different models and estimations. 
+
+**An exponential proportional-hazards model** assumes the baseline hazard function is a constant $$h_0(t) = \lambda$$ 
+
+**A Weibull proportional-hazards model** assumes the baseline hazard function  follows Weibull distribution, where $$h_0(t) = \lambda\gamma t^{\gamma-1}$$ for $\gamma>0$ 
+
+
+**A Cox proportional-hazards model** leaves $h_0(t)$ unspecified.
+
+
+Note that exponential distribution is a special case of Weibull distribution where $\lambda =1$. Hence, among the three models,  the exponential proportional-hazards model is the most restrictive model, while the Cox model is the most general one 
+
+
+**Your tasks:** Design a simulation study to evaluate the impacts of misspecifying the baseline hazard function on the estimate of the treatment effect, and one could avoid this issue by using a semi-parametric Cox model.  In the meantime, investigate the impact of fitting too complicated a model when an exponential is sufficient
+
+
+
+sim data gamma = 1 (exponential distribution)
+```{r}
+# Create a data frame with the subject IDs and treatment covariate
+cov <- data.frame(id = 1:500,
+                    trt = rbinom(500, 1, 0.5))
+  
+# Simulate the event times
+dat <- simsurv(lambdas = 0.1, 
+               gammas = 1, 
+               betas = c(trt = -0.5), 
+               x = cov, 
+               maxt = 5)
+  
+# Merge the simulated event times onto covariate data frame
+dat <- merge(cov, dat)
+```
+
+sim data gamma = 2 (Weibull distribution)
+```{r}
+cov_2 <- data.frame(id = 1:500,
+                    trt = rbinom(500, 1, 0.5))
+  
+# Simulate the event times
+dat_2 <- simsurv(lambdas = 0.1, 
+               gammas = 5, 
+               betas = c(trt = -0.5), 
+               x = cov_2, 
+               maxt = 5)
+  
+# Merge the simulated event times onto covariate data frame
+dat_2 <- merge(cov_2, dat_2)
+```
+
+Simulating under a Weibull model with time-dependent effects
+```{r}
+
+```
+
+
+
+
+### R codes for Hazard Ratio Estimation
+```{r, eval=F, echo=T}
+# Exponential
+fit.exponential <- survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "exponential")
+summary(fit.exponential)
+- fit.exponential$coefficients[-1]
+
+fit.exponential <- survreg(Surv(dat_2$eventtime, dat_2$status) ~ dat_2$trt, dist = "exponential")
+summary(fit.exponential)
+- fit.exponential$coefficients[-1]
+
+# Weibull
+fit.weibull <- survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "weibull")
+summary(fit.weibull)
+- fit.weibull$coefficients[-1] / fit.weibull$scale
+
+fit.weibull <- survreg(Surv(dat_2$eventtime, dat_2$status) ~ dat_2$trt, dist = "weibull")
+summary(fit.weibull)
+- fit.weibull$coefficients[-1] / fit.weibull$scale
+
+# Cox
+fit.cox <- coxph(Surv(y) ~ x[, 1] + x[, 2])
+summary(fit.cox)
+```
+Note that in `survreg`, the output is parameterized differently (see Chapter 2.2 and 2.3 of Kalbfleisch and Prentice). Therefore we need some extra transform to obtain $\beta$.
+
+
+
+
+
+###Some Background###
+Suppose $T\in[0, \infty)$ is the time to a event of interest, such as death, disease onset, device failure, etc. To analyze such data, we define a **survival function** $S$ as
+$$S(t) = \operatorname{Pr}(T > t) = \int_t^\infty f(s) ds$$
+It measures the probablity of ``survive'' beyond time $t$. If $T$ is the time to death, $S(t)$ is the probablity of living longer than $t$.  A closely-related concept, **hazard function** $h$, is defined as
+$$h(t) = \lim_{\Delta t \rightarrow 0}\frac{\operatorname{Pr}(T \in (t, t + \Delta t) \vert T > t)}{\Delta t} = \frac{f(t)}{S(t)}.$$
+where $f(t)$ is the density function of $T$. The hazard function measures the instantaneous risk of failure at time $t$ giving that a patient has survived until time $t$. 
+
