@@ -54,6 +54,7 @@ Note that exponential distribution is a special case of Weibull distribution whe
 
 sim data gamma = 1 (exponential distribution)
 ```{r}
+set.seed(135)
 # Create a data frame with the subject IDs and treatment covariate
 cov <- data.frame(id = 1:500,
                     trt = rbinom(500, 1, 0.5))
@@ -71,6 +72,7 @@ dat <- merge(cov, dat)
 
 sim data gamma = 2 (Weibull distribution)
 ```{r}
+set.seed(577)
 cov_2 <- data.frame(id = 1:500,
                     trt = rbinom(500, 1, 0.5))
   
@@ -87,9 +89,32 @@ dat_2 <- merge(cov_2, dat_2)
 
 Simulating under a Weibull model with time-dependent effects
 ```{r}
+set.seed(887)
 
 ```
 
+Simulating under lognormal model (mean=mu=0,sd=sigma=0.5) (non-monotone hazard!)
+```{r}
+set.seed(990)
+
+h=function(t,mu,sigma) 
+{((1/t*sigma)*dnorm(log(t)/sigma,mean=mu,sd=sigma))/
+    (pnorm(-log(t)/sigma,mean=mu,sd=sigma))}
+
+cov_3 <- data.frame(id = 1:500,
+                    trt = rbinom(500, 1, 0.5))
+
+dat_3 <- simsurv(hazard = h(t,mu,sigma,x,betas), #?????
+                 x = cov_3,
+                 betas = c(trt = -0.5),
+                 maxt = 5)
+  
+          
+t=seq(0,10,.1)
+data=h(t,mu=0,sigma=0.5)
+plot(data)
+rlnorm() #for simulating lognorm data
+```
 
 
 
