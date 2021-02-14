@@ -109,7 +109,6 @@ dat_3 <- simsurv(hazard = h(t,mu,sigma,x,betas), #?????
                  betas = c(trt = -0.5),
                  maxt = 5)
   
-          
 t=seq(0,10,.1)
 data=h(t,mu=0,sigma=0.5)
 plot(data)

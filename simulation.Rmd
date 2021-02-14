@@ -1,0 +1,56 @@
+---
+title: "Simulation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(survival)
+library(quantreg)
+library(glmnet)
+library(MASS)
+library(pROC)
+library(simsurv)
+library(flexsurv)
+library(tidyverse)
+library(broom)
+```
+
+```{r}
+
+sim_weibull = function(gamma, n){
+  
+  #sim weibull data
+  cov <- data.frame(id = 1:n,
+                    trt = rbinom(n, 1, 0.5))
+  dat <- simsurv(lambdas = 0.1, 
+               gammas = gamma, 
+               betas = c(trt = -0.5), 
+               x = cov, 
+               maxt = 5)
+  dat <- merge(cov, dat)
+  
+  #fit models
+  fit.exponential <- tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "exponential"))
+  fit.weibull <- tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "weibull"))
+  fit.cox <- tidy(coxph(Surv(dat$eventtime, dat$status) ~ dat$trt))
+  
+  #extract beta
+  result = tibble(exp_beta = c(-fit.exponential$estimate[1]), 
+                  weibull_beta = c(-fit.weibull$estimate[1]),
+                  cox_beta =c(fit.cox$estimate), 
+                  gamma = gamma, 
+                  n = n)
+  return(result)
+}
+
+
+
+# run sim 1000 times, with gamma = 1 , n = 100
+set.seed(11)
+
+results = map_dfr(.x = c(rep(1, 1000)), 
+        ~sim_weibull(gamma = .x, n = 100))
+```
+
