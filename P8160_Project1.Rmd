@@ -70,7 +70,19 @@ dat <- simsurv(lambdas = 0.1,
 dat <- merge(cov, dat)
 ```
 
-sim data gamma = 2 (Weibull distribution)
+Visualization: survival probability vs. time
+```{r}
+mod_exp <- flexsurv::flexsurvspline(Surv(eventtime, status) ~ trt, 
+                                     data = dat)
+
+plot(mod_exp,
+     main = "Exponential model",
+     ylab = "Survival probability",
+     xlab = "Time")
+```
+
+
+sim data gamma = 5 (Weibull distribution)
 ```{r}
 set.seed(577)
 cov_2 <- data.frame(id = 1:500,
@@ -87,11 +99,17 @@ dat_2 <- simsurv(lambdas = 0.1,
 dat_2 <- merge(cov_2, dat_2)
 ```
 
-Simulating under a Weibull model with time-dependent effects
+visualization: survival probability vs. time
 ```{r}
-set.seed(887)
+mod_weib <- flexsurv::flexsurvspline(Surv(eventtime, status) ~ trt, 
+                                     data = dat_2)
 
+plot(mod_weib,
+     main = "Weibull model",
+     ylab = "Survival probability",
+     xlab = "Time")
 ```
+
 
 Simulating under lognormal model (mean=mu=0,sd=sigma=0.5) (non-monotone hazard!)
 ```{r}
@@ -113,6 +131,11 @@ t=seq(0,10,.1)
 data=h(t,mu=0,sigma=0.5)
 plot(data)
 rlnorm() #for simulating lognorm data
+```
+
+visualization: survival probability vs. time
+```{r}
+
 ```
 
 
