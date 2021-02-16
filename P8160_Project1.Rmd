@@ -141,9 +141,19 @@ visualization: survival probability vs. time
 
 
 ```{r}
-cov_3 <- data.frame(id = 1:500,
-                    trt = rbinom(500, 1, 0.5))
+cov_3 <- data.frame(trt = rbinom(100, 1, 0.5))
+h=function(t){
+  ((1/t*0.5)*dnorm(log(t)/0.5,mean=0,sd=0.5))/
+    (pnorm(-log(t)/0.5,mean=0,sd=0.5))}
 
+d1=coxed::sim.survdata(100,1000,type="none",hazard.fun=h,X=cov_3,beta=c(-0.5),
+                    num.data.frames=1,censor=0)$data
+
+fit=survreg(Surv(d1$y, d1$failed) ~ d1$trt, dist = "weibull")
+fit
+fit$coefficients[-1] / fit$scale
+fit2=coxph(Surv(d1$y, d1$failed) ~ d1$trt)
+fit2
 ```
 
 
