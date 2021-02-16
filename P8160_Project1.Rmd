@@ -12,6 +12,8 @@ require(MASS)
 require(pROC)
 library(simsurv)
 library(flexsurv)
+library(survsim)
+library(coxed)
 
 set.seed(2019)
 ```
@@ -115,28 +117,35 @@ Simulating under lognormal model (mean=mu=0,sd=sigma=0.5) (non-monotone hazard!)
 ```{r}
 set.seed(990)
 
-h=function(t,mu,sigma) 
-{((1/t*sigma)*dnorm(log(t)/sigma,mean=mu,sd=sigma))/
+h=function(t,mu,sigma){
+  ((1/t*sigma)*dnorm(log(t)/sigma,mean=mu,sd=sigma))/
     (pnorm(-log(t)/sigma,mean=mu,sd=sigma))}
 
 cov_3 <- data.frame(id = 1:500,
                     trt = rbinom(500, 1, 0.5))
 
-dat_3 <- simsurv(hazard = h(t,mu,sigma,x,betas), #?????
-                 x = cov_3,
-                 betas = c(trt = -0.5),
-                 maxt = 5)
-  
 t=seq(0,10,.1)
+dat_3 <- simsurv(hazard = h(t,mu=0,sigma=0.5))
+
+
 data=h(t,mu=0,sigma=0.5)
 plot(data)
-rlnorm() #for simulating lognorm data
+plot(rlnorm(100,0,0.5))
+
 ```
 
 visualization: survival probability vs. time
 ```{r}
 
 ```
+
+
+```{r}
+cov_3 <- data.frame(id = 1:500,
+                    trt = rbinom(500, 1, 0.5))
+
+```
+
 
 
 
