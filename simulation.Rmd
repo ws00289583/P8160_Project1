@@ -127,14 +127,79 @@ write.csv(results4,"results_lognormal.csv")
 
 
 
-
+Fit and plot weibull dist using three models
 ```{r}
 #PLOTTING HAZARDS
 
 #Exponential (gamma=1), hazard=1/beta=lambda
-ggplot(data=results1)+
-  geom_density()
 
-#Weibull (gamma=0.5)
+plot_weibull = function(gamma, n){
+cov <- data.frame(id = 1:n,
+                    trt = rbinom(500, 1, 0.5))
+  
+# Simulate the event times
+dat <- simsurv(lambdas = 0.1, 
+               gammas = gamma, 
+               betas = c(trt = -0.5), 
+               x = cov)
+dat <- merge(cov, dat)
+s <- with(dat,Surv(eventtime,status))
+sWei <- survreg(s ~ as.factor(trt),dist='weibull',data=dat)
+sExp <- survreg(s ~ as.factor(trt),dist='exp',data=dat)
+sCox <- coxph(s ~ trt,data=dat)
+
+s <- with(dat,Surv(eventtime,status))
+fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
+par(mfrow=c(1,3))
+    plot(fKM,main = 'cox')
+    lines(survfit(sCox,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox,newdata=data.frame(trt=0),conf.int = F),col='green')
+    plot(fKM,main = 'weibull')
+    lines(predict(sWei, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(fKM,main = 'exponential')
+    lines(predict(sExp, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+}
+
+plot_weibull(0.5, 1000)
+
+```
+
+Fit and plot lognormal dist using three models
+```{r}
+plot_lnorm = function(n){
+  
+# sim log-norm data
+cov <- data.frame(trt = rbinom(n, 1, 0.5))
+dat <- cbind(simsurv(hazard = haz, 
+                 x = cov,
+                 mu = 0, 
+                 sigma = 0.5,
+                 betas = c(trt = -0.5)), 
+               cov)
+  
+# Merge the simulated event times onto covariate data frame
+# No parameters need to be changed
+s <- with(dat,Surv(eventtime,status))
+sWei <- survreg(s ~ as.factor(trt),dist='weibull',data=dat)
+sExp <- survreg(s ~ as.factor(trt),dist='exp',data=dat)
+sCox <- coxph(s ~ trt,data=dat)
+
+s <- with(dat,Surv(eventtime,status))
+fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
+par(mfrow=c(1,3))
+    plot(fKM,main = 'cox')
+    lines(survfit(sCox,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox,newdata=data.frame(trt=0),conf.int = F),col='green')
+    plot(fKM,main = 'weibull')
+    lines(predict(sWei, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(fKM,main = 'exponential')
+    lines(predict(sExp, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+}
+
+plot_lnorm(100)
 ```
 
