@@ -65,8 +65,7 @@ cov <- data.frame(id = 1:500,
 dat <- simsurv(lambdas = 0.1, 
                gammas = 1, 
                betas = c(trt = -0.5), 
-               x = cov, 
-               maxt = 5)
+               x = cov)
   
 # Merge the simulated event times onto covariate data frame
 dat <- merge(cov, dat)
@@ -94,8 +93,7 @@ cov_2 <- data.frame(id = 1:500,
 dat_2 <- simsurv(lambdas = 0.1, 
                gammas = 5, 
                betas = c(trt = -0.5), 
-               x = cov_2, 
-               maxt = 5)
+               x = cov_2)
   
 # Merge the simulated event times onto covariate data frame
 dat_2 <- merge(cov_2, dat_2)
@@ -117,15 +115,18 @@ Simulating under lognormal model (mean=mu=0,sd=sigma=0.5) (non-monotone hazard!)
 ```{r}
 set.seed(990)
 
-h=function(t,mu,sigma){
-  ((1/t*sigma)*dnorm(log(t)/sigma,mean=mu,sd=sigma))/
-    (pnorm(-log(t)/sigma,mean=mu,sd=sigma))}
+h=function(t=seq(0,1000,.1),x,betas){
+  h.vals=numeric()
+  for(i in 1:length(t)){
+  h.vals[i]=((1/t[i]*0.5)*dnorm(log(t[i])/0.5,mean=0,sd=0.5))/
+    (pnorm(-log(t[i])/0.5,mean=0,sd=0.5))
+  }
+  return(h.vals)
+  }
 
-cov_3 <- data.frame(id = 1:500,
-                    trt = rbinom(500, 1, 0.5))
-
-t=seq(0,10,.1)
-dat_3 <- simsurv(hazard = h(t,mu=0,sigma=0.5))
+dat_3 <- simsurv(hazard = h(), 
+                 x=data.frame(id = 1:500, trt = rbinom(500, 1, 0.5)),
+                 betas=c(trt = -0.5))
 
 
 data=h(t,mu=0,sigma=0.5)
