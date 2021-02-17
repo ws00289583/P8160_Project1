@@ -40,6 +40,7 @@ sim_weibull = function(gamma, n){
   result = tibble(exp_beta = c(-fit.exponential$estimate[1]), 
                   weibull_beta = c(-fit.weibull$estimate[1]),
                   cox_beta =c(fit.cox$estimate), 
+                  dist = "weibull",
                   gamma = gamma, 
                   n = n)
   return(result)
@@ -52,5 +53,48 @@ set.seed(11)
 
 results = map_dfr(.x = c(rep(1, 1000)), 
         ~sim_weibull(gamma = .x, n = 100))
+```
+
+
+
+```{r}
+#log-norm hazard fn
+haz <- function(t, x, betas, mu, sigma) {
+  exp(betas * (x)) * ((1/t*sigma)*dnorm(log(t)/sigma,mean=mu,sd=sigma))/
+    (pnorm(-log(t)/sigma,mean=mu,sd=sigma))
+}
+
+
+
+sim_lnorm = function(n){
+  
+  #sim log-norm data
+  cov <- data.frame(trt = rbinom(n, 1, 0.5))
+  dat <- cbind(simsurv(hazard = haz, 
+                 x = cov,
+                 mu = 0, 
+                 sigma = 0.5,
+                 betas = c(trt = -0.5)), 
+               cov)
+  
+  #fit models
+  fit.exponential <-tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "exponential"))
+  fit.weibull <- tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "weibull"))
+  fit.cox <- tidy(coxph(Surv(dat$eventtime, dat$status) ~ dat$trt))
+  
+  #extract beta
+  result = tibble(exp_beta = c(-fit.exponential$estimate[1]), 
+                  weibull_beta = c(-fit.weibull$estimate[1]),
+                  cox_beta =c(fit.cox$estimate), 
+                  dist = "lnorm",
+                  gamma = NA, 
+                  n = n)
+}
+
+# run sim 5 times, n = 100
+set.seed(11)
+
+results = map_dfr(.x = c(rep(100, 5)), 
+        ~sim_lnorm(n = .x))
 ```
 
