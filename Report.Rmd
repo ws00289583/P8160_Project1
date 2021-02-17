@@ -1,0 +1,24 @@
+---
+title: "Evaluating the Impact of Baseline Hazard Function Misspecification on Treatment Effect Estimation"
+author: "Charly Fowler, Hanfei Qi, Robert Tumasian III , and Haoyang Yi"
+date: "February 24, 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Objectives
+
+# Statistical Methods
+
+# Simulation Design
+
+# Data Generation
+
+# Measuring Performance
+
+# Results
+
+# Conclusions

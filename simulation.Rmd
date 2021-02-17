@@ -48,11 +48,34 @@ sim_weibull = function(gamma, n){
 
 
 
-# run sim 1000 times, with gamma = 1 , n = 100
+# run sim 1000 times, with n = 100
+
+#RESULTS
 set.seed(11)
 
-results = map_dfr(.x = c(rep(1, 1000)), 
+#gamma=0.5
+results0 = map_dfr(.x = c(rep(0.5, 1000)), 
         ~sim_weibull(gamma = .x, n = 100))
+
+write.csv(results0,"results_gamma0.5.csv")
+
+#gamma=1 (exponential)
+results1 = map_dfr(.x = c(rep(1, 1000)), 
+        ~sim_weibull(gamma = .x, n = 100))
+
+write.csv(results1,"results_gamma1.csv")
+
+#gamma=2
+results2 = map_dfr(.x = c(rep(2, 1000)), 
+        ~sim_weibull(gamma = .x, n = 100))
+
+write.csv(results2,"results_gamma2.csv")
+
+#gamma=5
+results3 = map_dfr(.x = c(rep(5, 1000)), 
+        ~sim_weibull(gamma = .x, n = 100))
+
+write.csv(results3,"results_gamma5.csv")
 ```
 
 
@@ -91,10 +114,27 @@ sim_lnorm = function(n){
                   n = n)
 }
 
-# run sim 5 times, n = 100
+# run sim 1000 times, n = 100
 set.seed(11)
 
-results = map_dfr(.x = c(rep(100, 5)), 
+#lognormal results
+results4 = map_dfr(.x = c(rep(100, 1000)), 
         ~sim_lnorm(n = .x))
+
+write.csv(results4,"results_lognormal.csv")
+```
+
+
+
+
+
+```{r}
+#PLOTTING HAZARDS
+
+#Exponential (gamma=1), hazard=1/beta=lambda
+ggplot(data=results1)+
+  geom_density()
+
+#Weibull (gamma=0.5)
 ```
 
