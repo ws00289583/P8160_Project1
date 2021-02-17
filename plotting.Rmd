@@ -20,17 +20,35 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Visualization: survival probability vs. time 
 ```{r}
+################# Generate Exp or Weib dist data ###################
 cov <- data.frame(id = 1:500,
                     trt = rbinom(500, 1, 0.5))
   
 # Simulate the event times
 dat <- simsurv(lambdas = 0.1, 
-               gammas = 0.5, #change gamma,or use lognormal simulation
+               gammas = 5, #change gamma,or use lognormal simulation
                betas = c(trt = -0.5), 
                x = cov)
+dat <- merge(cov, dat)
+
+
+################### Generate lognormal dist data ###################
+# log-norm hazard fn
+haz <- function(t, x, betas, mu, sigma) {
+  exp(betas * (x)) * ((1/t*sigma)*dnorm(log(t)/sigma,mean=mu,sd=sigma))/
+    (pnorm(-log(t)/sigma,mean=mu,sd=sigma))
+}
+# sim log-norm data
+cov <- data.frame(trt = rbinom(100, 1, 0.5))
+dat <- cbind(simsurv(hazard = haz, 
+                 x = cov,
+                 mu = 0, 
+                 sigma = 0.5,
+                 betas = c(trt = -0.5)), 
+               cov)
   
 # Merge the simulated event times onto covariate data frame
-dat <- merge(cov, dat)
+# No parameters need to be changed
 s <- with(dat,Surv(eventtime,status))
 sWei <- survreg(s ~ as.factor(trt),dist='weibull',data=dat)
 sExp <- survreg(s ~ as.factor(trt),dist='exp',data=dat)
