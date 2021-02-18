@@ -26,7 +26,7 @@ cov <- data.frame(id = 1:500,
   
 # Simulate the event times
 dat <- simsurv(lambdas = 0.1, 
-               gammas = 5, #change gamma,or use lognormal simulation
+               gammas = 1, #change gamma,or use lognormal simulation
                betas = c(trt = -0.5), 
                x = cov)
 dat <- merge(cov, dat)
@@ -45,7 +45,7 @@ dat <- cbind(simsurv(hazard = haz,
                  mu = 0, 
                  sigma = 0.5,
                  betas = c(trt = -0.5)), 
-               cov)
+                 cov)
   
 # Merge the simulated event times onto covariate data frame
 # No parameters need to be changed
@@ -58,7 +58,8 @@ sCox <- coxph(s ~ trt,data=dat)
 ```{r}
 s <- with(dat,Surv(eventtime,status))
 fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
-par(mfrow=c(1,3))
+baseline <- basehaz(sCox)
+par(mfrow=c(2,2))
     plot(fKM,main = 'cox')
     lines(survfit(sCox,newdata=data.frame(trt=1),conf.int = F),col='green')
     lines(survfit(sCox,newdata=data.frame(trt=0),conf.int = F),col='green')
@@ -68,4 +69,6 @@ par(mfrow=c(1,3))
     plot(fKM,main = 'exponential')
     lines(predict(sExp, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
     lines(predict(sExp, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(baseline$time, baseline$hazard, type='l',main="Hazard rates", xlab = "Time", ylab = "Hazard") 
+    lines(baseline$time, exp(sCox$coefficients[1])*baseline$hazard, col="blue")
 ```
