@@ -161,7 +161,7 @@ par(mfrow=c(2,2))
     plot(fKM,main = 'exponential')
     lines(predict(sExp, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
     lines(predict(sExp, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(baseline$time, baseline$hazard, type='l',main="Hazard rates", xlab = "Time", ylab = "Hazard") 
+    plot(baseline$time, baseline$hazard, type='l',main="Hazard rates??", xlab = "Time", ylab = "Hazard") 
     lines(baseline$time, exp(sCox$coefficients[1])*baseline$hazard, col="blue")
 }
 
@@ -202,7 +202,7 @@ par(mfrow=c(2,2))
     plot(fKM,main = 'exponential')
     lines(predict(sExp, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
     lines(predict(sExp, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(baseline$time, baseline$hazard, type='l',main="Hazard rates", xlab = "Time", ylab = "Hazard") 
+    plot(baseline$time, baseline$hazard, type='l',main="Hazard rates??", xlab = "Time", ylab = "Hazard") 
     lines(baseline$time, exp(sCox$coefficients[1])*baseline$hazard, col="blue")
 }
 
