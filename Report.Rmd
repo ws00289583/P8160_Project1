@@ -15,11 +15,15 @@ The goal of this study is to evaluate how misspecifying the baseline hazard func
 
 # Statistical Methods
 
+Survival analysis is used to  time-to-event data. \par
+
 The purpose of proportional hazards modeling is to assess the effectiveness of a particular treatment ($X$) over survival time $T$, where the hazard ratio for patient $i$ at time $t$ is defined as $h_i(t)=h_0(t)e^{x_i\theta}$. Here, $h_0(t)$ denotes the pre-specified baseline hazard function, $x_i$ indicates treatment allocation (0=control, 1=treatment), and $\theta$ represents the log hazard ratio, or the hazard reduction among treated individuals compared to the control group. Thus, the proportional hazard can be expressed as $\frac{h(t|x_0)}{h(t|x_1)}=e^{\beta(x_0-x_1)}$, which is independent of survival time $t$.\par
 
-Each of the models we consider implement different baseline hazard functions, except for the Cox model, which estimates $\theta$ without this specification. Baseline hazard functions for the exponential, Weibull, and lognormal models are shown in the table below.
+Each of the models we consider implement different baseline hazard functions, except for the Cox model, which estimates $\theta$ without this specification. Baseline hazard functions for the exponential, Weibull, and lognormal models are provided in the table below.
 
+\begin{center}
 
+\end{center}
 
 # Simulation Design
 
