@@ -23,7 +23,7 @@ Each of the models we consider implement different baseline hazard functions, ex
 
 $$
 \begin{array}{}
-\hline \text {} & \text { Exponential } & \text { Weibull } & \text { Log-normal } \\
+\hline \text {} & \text { Exponential } & \text { Weibull } & \text { Lognormal } \\
 \hline
 \text { Baseline Hazard Function } & h_0(t) = \lambda & h_0(t) = \lambda\gamma t^{\gamma-1} & h_0(t)=\frac{\frac{1}{t \sigma \sqrt{2 \pi}} \exp \left[\frac{-1}{2 \sigma^{2}}\{\ln (t)-\mu\}^{2}\right]}{1-\Phi\left\{\frac{\ln (t)-\mu}{\sigma}\right\}} \\
 \hline
