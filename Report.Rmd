@@ -21,23 +21,6 @@ The purpose of proportional hazards modeling is to assess the effectiveness of a
 
 Each of the models we consider implement different baseline hazard functions, except for the Cox model, which estimates $\theta$ without this specification. Baseline hazard functions for the exponential, Weibull, and lognormal models are provided in Table 1 below.
 
-<<<<<<< HEAD
-\begin{center}
-\begin{tabular}{|c|c|}
-\hline
-\textbf{Model} & \textbf{Baseline Hazard Function} \\
-\hline
-Exponential & $1/\lambda$ \\
-\hline
-Weibull & $\lambda^ppt^{p-1}$ \\
-\hline
-Lognormal & $\frac{(1/t\sigma)*\Phi(log(t)/\sigma)}{\phi(-log(t)/\sigma)}$ \\
-\hline
-Cox & - \\
-\hline
-\end{tabular}
-\end{center}
-=======
 $$
 \begin{array}{}
 \hline \text {} & \text { Exponential } & \text { Weibull } & \text { Log-normal } \\
@@ -46,7 +29,6 @@ $$
 \hline
 \end{array}
 $$
->>>>>>> d9dd9553570fd16f36f777a662b5c0561fe54585
 
 Table 1. Baseline hazard functions for the models considered in this study. The normal CDF and PDF are denoted by $\Phi$ and $\phi$, respectively. The Cox model does not utilize a baseline hazard function.
 
@@ -67,4 +49,3 @@ To assess model performance, we used mean-squared error (MSE) and ____.
 
 # Conclusions
 
-# Reference
