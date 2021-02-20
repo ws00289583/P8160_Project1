@@ -94,3 +94,58 @@ par(mfrow=c(2,2))
     plot(baseline$time, baseline$hazard, type='l',main="Hazard rates", xlab = "Time", ylab = "Hazard") 
     lines(baseline$time, exp(sCox$coefficients[1])*baseline$hazard, col="blue")
 ```
+
+
+
+```{r}
+#plot hazards: 
+
+set.seed(1729)
+ncuts <- 19
+cuts <- sort(rexp(ncuts, rate = 0.1))
+pw_times <- c(0, cuts)
+N <- length(pw_times)
+pw_haz <- sort(abs(rnorm(N)))
+pw_haz <- abs(pw_haz - median(pw_haz))
+
+haz_piece <- function(t, ...) {
+   pw_haz[findInterval(t, pw_times)]
+}
+
+haz_log <- function(t) {
+  ((1/t*0.5)*dnorm(log(t)/0.5,mean=-0,sd=0.5))/
+    (pnorm(-log(t)/0.5,mean=0,sd=0.5))
+}
+
+haz_weibull_0.5 = function(t){
+  0.5 * t^(0.5-1)
+}
+
+haz_weibull_5 = function(t){
+  5 * t^(5-1)
+}
+
+haz_weibull_0.5 = function(t){
+  0.5 * t^(0.5-1)
+}
+
+haz_exponential = function(t){
+  0.5 * t^(1-1)
+}
+
+p <- ggplot(data = data.frame(x = 0), mapping = aes(x = x))
+
+p + 
+  stat_function(fun = haz_piece, aes(color = "piece-wise")) + 
+  stat_function(fun = haz_log, aes(col = "log-normal")) + 
+  stat_function(fun = haz_weibull_0.5, aes(col = "weibull (gamma = 0.5)")) + 
+  stat_function(fun = haz_exponential, aes(col = "pink")) +
+  xlim(0,20) + 
+  theme_bw() + 
+  scale_color_manual(name = "Hazard Functions", 
+                     values = c("red", "green", "blue", "orange"), 
+                     labels = c("log-normal", "piece-wise", "exponential", "weibull (gamma = 0.5)")) + 
+  theme(legend.position="bottom")
+  
+```
+
