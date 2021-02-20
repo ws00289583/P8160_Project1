@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 ```{r, include=FALSE}
-
+library(tidyverse)
 ```
 
 # Objectives
@@ -19,8 +19,9 @@ Survival analysis is used to analyze time-to-event data (e.g., time to symptom o
 
 The purpose of proportional hazards modeling is to assess the effectiveness of a particular treatment ($X$) over survival time $T$, where the hazard ratio for patient $i$ at time $t$ is defined as $h_i(t)=h_0(t)e^{x_i\theta}$. Here, $h_0(t)$ denotes the pre-specified baseline hazard function, $x_i$ indicates treatment allocation (0=control, 1=treatment), and $\theta$ represents the log hazard ratio, or the hazard reduction among treated individuals compared to the control group. Thus, the proportional hazard can be expressed as $\frac{h(t|x_0)}{h(t|x_1)}=e^{\beta(x_0-x_1)}$, which is independent of survival time $t$.\par
 
-Each of the models we consider implement different baseline hazard functions, except for the Cox model, which estimates $\theta$ without this specification. Baseline hazard functions for the exponential, Weibull, and lognormal models are provided in Table 1 below. The baseline hazard function for our discrete model is stepwise, and the Cox model does not utilize a baseline hazard function.
+For each of the models we consider implement different baseline hazard functions, except for the Cox model, which estimates $\theta$ without this specification. Baseline hazard functions for the exponential, Weibull, and lognormal models are provided in Table 1 below. The baseline hazard function for our discrete model is stepwise, and the Cox model does not utilize a baseline hazard function.____(Are we using lognormal model or we simulate a lognormal situation?)
 
+In order to finding a case that Cox model performs best, we also consider piecewise hazards____ 
 $$
 \begin{array} {lccc}
 \hline \text {} & \text { Exponential } & \text { Weibull } & \text { Lognormal } \\
@@ -30,18 +31,23 @@ $$
 \end{array}
 $$
 
-Table 1. Baseline hazard functions, $h_0(t)$, for the continuous models considered in this study. The normal CDF is denoted by $\Phi$.
+Table 1. Baseline hazard functions, $h_0(t)$, for the continuous models considered in this study. $\mu$ and $\sigma$ are mean and standard deviation of normal distribution. The normal CDF is denoted by $\Phi$.
 
 # Simulation Design
 
 We simulated survival data
 
-All simulation data was generated using the `simsurv` function in the `simsurv` package. We defined a binomial treatment variable (`trt`) with $p=0.5$ to ensure equal likelihood of random assignment to the treatment or control group. For the Weibull model, we considered various parameters ($\gamma=0.5,1,2,5$, where $\lambda=1$ denotes the exponential model. We used $\beta = -0.5$ as the true effect size.
+All simulation data was generated using the `simsurv` function in the `simsurv` package. We defined a binomial treatment variable (`trt`) with $p=0.5$ to ensure equal likelihood of random assignment to the treatment or control group.Parameters are set according to different distributions of hazards.The resulting dataset contains time of event(`eventtime`), status(`status`) and treatment(`trt`).
 
+For the Weibull model, we considered various parameters ($\gamma=0.5,1,2,5$, where $\gamma=1$ denotes the exponential model. We used $\beta = -0.5$ as the true effect size. For the lognormal situation, we used $\mu = 0, \sigma = 0.5$ as parameters of normal distribution and $\beta = -0.5$ as the true effect size. 
+
+In piecewise simulation, we simulated a set of 20 piecewise hazards specified by seed() function______
 
 # Data Generation
 
+We generated datasets from 6 simulations considering $\gamma=0.5,1,2,5$, lognormal and piecewise.
 
+We set the sample size as 100 and repeat 1000 times to get the dataframe of results. Each time we fitted exponential, Weibull and cox model to the data and extracted the $\beta$ provided by three models.
 
 # Measuring Performance
 
