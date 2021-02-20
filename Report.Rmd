@@ -50,8 +50,56 @@ We generated datasets from 6 simulations considering $\gamma=0.5,1,2,5$, lognorm
 We set the sample size as 100 and repeat 1000 times to get the dataframe of results. Each time we fitted exponential, Weibull and cox model to the data and extracted the $\beta$ provided by three models.
 
 # Measuring Performance
+```{r, include=FALSE}
+path_to_gamma0.5= "./results_gamma0.5.csv"
+path_to_gamma1= "./results_gamma1.csv"
+path_to_gamma2= "./results_gamma2.csv"
+path_to_gamma5= "./results_gamma5.csv"
+path_to_logn= "./results_lognormal.csv"
 
-To assess model performance, we used mean-squared error (MSE) and ____. 
+result_0.5 = read_csv(file = path_to_gamma0.5)
+result_1 = read_csv(file = path_to_gamma1)
+result_2 = read_csv(file = path_to_gamma2)
+result_5 = read_csv(file = path_to_gamma5)
+result_ln = read_csv(file = path_to_logn)
+
+mean_beta = tibble(
+  Model = c("Exponential", "Weibull", "Cox"),
+  Gamma_0.5 = c(mean(result_0.5$exp_beta), mean(result_0.5$weibull_beta), mean(result_0.5$cox_beta)),
+  Gamma_1 = c(mean(result_1$exp_beta), mean(result_1$weibull_beta), mean(result_1$cox_beta)),
+  Gamma_2 = c(mean(result_2$exp_beta), mean(result_2$weibull_beta), mean(result_2$cox_beta)),
+  Gamma_5 = c(mean(result_5$exp_beta), mean(result_5$weibull_beta), mean(result_5$cox_beta)),
+  Lognormal = c(mean(result_ln$exp_beta), mean(result_ln$weibull_beta), mean(result_ln$cox_beta))
+)
+
+MSE = function(beta, n=1000) {
+  return(sum((-0.5 - beta)^2)/n)
+}
+
+MSE_table = tibble(
+  Model = c("Exponential", "Weibull", "Cox"),
+  Gamma_0.5 = c(MSE(result_0.5$exp_beta), MSE(result_0.5$weibull_beta), MSE(result_0.5$cox_beta)),
+  Gamma_1 = c(MSE(result_1$exp_beta), MSE(result_1$weibull_beta), MSE(result_1$cox_beta)),
+  Gamma_2 = c(MSE(result_1$exp_beta), MSE(result_1$weibull_beta), MSE(result_1$cox_beta)),
+  Gamma_5 = c(MSE(result_5$exp_beta), MSE(result_5$weibull_beta), MSE(result_5$cox_beta)),
+  Lognormal = c(MSE(result_ln$exp_beta), MSE(result_ln$weibull_beta), MSE(result_ln$cox_beta))
+)
+```
+To assess model performance, we used mean-squared error (MSE) and ____. We also plotted the survival probability verse time of each model, with reference lines.
+
+NOTE: shouldn't the tables be part of results? feel free to change it!  
+NOTE2: Values look weird.  
+NOTE3: I couldn't find an easy way to plot hazard ratio vs. time, but plot cumulative hazard vs. time is possible.  
+
+The following table presents mean of beta of each model.
+```{r mean_beta_table, echo=FALSE}
+mean_beta
+```
+
+The following table presents mean squared error of beta of each model.
+```{r MSE_beta_table, echo=FALSE}
+MSE_table
+```
 
 \begin{center}
 

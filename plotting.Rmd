@@ -29,6 +29,7 @@ dat <- simsurv(lambdas = 0.1,
                gammas = 1, #change gamma,or use lognormal simulation
                betas = c(trt = -0.5), 
                x = cov)
+
 dat <- merge(cov, dat)
 
 
