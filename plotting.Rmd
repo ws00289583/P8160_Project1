@@ -121,17 +121,8 @@ haz_weibull_0.5 = function(t){
   0.5 * t^(0.5-1)
 }
 
-haz_weibull_5 = function(t){
-  5 * t^(5-1)
-}
 
-haz_weibull_0.5 = function(t){
-  0.5 * t^(0.5-1)
-}
 
-haz_exponential = function(t){
-  0.5 * t^(1-1)
-}
 
 p <- ggplot(data = data.frame(x = 0), mapping = aes(x = x))
 
@@ -139,13 +130,15 @@ p +
   stat_function(fun = haz_piece, aes(color = "piece-wise")) + 
   stat_function(fun = haz_log, aes(col = "log-normal")) + 
   stat_function(fun = haz_weibull_0.5, aes(col = "weibull (gamma = 0.5)")) + 
-  stat_function(fun = haz_exponential, aes(col = "pink")) +
+  stat_function(fun = haz_exponential, aes(col = "pink")) + 
   xlim(0,20) + 
+  ylim(0,2) + 
   theme_bw() + 
   scale_color_manual(name = "Hazard Functions", 
                      values = c("red", "green", "blue", "orange"), 
-                     labels = c("log-normal", "piece-wise", "exponential", "weibull (gamma = 0.5)")) + 
-  theme(legend.position="bottom")
+                     labels = c("log-normal", "piece-wise", "exponential", "weibull (gamma = 0.5)" )) + 
+  theme(legend.position="bottom") + 
+  labs(x = "t", y = "hazard")
   
 ```
 
