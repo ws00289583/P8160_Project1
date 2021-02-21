@@ -59,12 +59,13 @@ path_to_gamma1= "./results_gamma1.csv"
 path_to_gamma2= "./results_gamma2.csv"
 path_to_gamma5= "./results_gamma5.csv"
 path_to_logn= "./results_lognormal.csv"
-
+path_to_piecewise = "./results_piecewise.csv"
 result_0.5 = read_csv(file = path_to_gamma0.5)
 result_1 = read_csv(file = path_to_gamma1)
 result_2 = read_csv(file = path_to_gamma2)
 result_5 = read_csv(file = path_to_gamma5)
 result_ln = read_csv(file = path_to_logn)
+result_pw = read_csv(file = path_to_piecewise) # Load the datasets
 
 mean_beta = tibble(
   Model = c("Exponential", "Weibull", "Cox"),
@@ -72,9 +73,10 @@ mean_beta = tibble(
   Gamma_1 = c(mean(result_1$exp_beta), mean(result_1$weibull_beta), mean(result_1$cox_beta)),
   Gamma_2 = c(mean(result_2$exp_beta), mean(result_2$weibull_beta), mean(result_2$cox_beta)),
   Gamma_5 = c(mean(result_5$exp_beta), mean(result_5$weibull_beta), mean(result_5$cox_beta)),
-  Lognormal = c(mean(result_ln$exp_beta), mean(result_ln$weibull_beta), mean(result_ln$cox_beta))
-)
-
+  Lognormal = c(mean(result_ln$exp_beta), mean(result_ln$weibull_beta), mean(result_ln$cox_beta)),
+  Piecewise = c(mean(result_pw$exp_beta), mean(result_pw$weibull_beta), mean(result_pw$cox_beta))
+) %>%
+  knitr::kable() # mean of 1000 beta
 MSE = function(beta, n=1000) {
   return(sum((-0.5 - beta)^2)/n)
 }
@@ -85,8 +87,9 @@ MSE_table = tibble(
   Gamma_1 = c(MSE(result_1$exp_beta), MSE(result_1$weibull_beta), MSE(result_1$cox_beta)),
   Gamma_2 = c(MSE(result_2$exp_beta), MSE(result_2$weibull_beta), MSE(result_2$cox_beta)),
   Gamma_5 = c(MSE(result_5$exp_beta), MSE(result_5$weibull_beta), MSE(result_5$cox_beta)),
-  Lognormal = c(MSE(result_ln$exp_beta), MSE(result_ln$weibull_beta), MSE(result_ln$cox_beta))
-) %>%
+  Lognormal = c(MSE(result_ln$exp_beta), MSE(result_ln$weibull_beta), MSE(result_ln$cox_beta)),
+  Piecewise = c(MSE(result_pw$exp_beta), MSE(result_pw$weibull_beta), MSE(result_pw$cox_beta))
+) %>% # MSE of 1000 beta
   knitr::kable()
 MSE_table
 ```
@@ -95,20 +98,6 @@ To assess model performance, we used mean-squared error (MSE) and ____. We also 
 NOTE: shouldn't the tables be part of results? feel free to change it!  
 NOTE2: Values look weird.  
 NOTE3: I couldn't find an easy way to plot hazard ratio vs. time, but plot cumulative hazard vs. time is possible.  
-
-The following table presents mean of beta of each model.
-```{r mean_beta_table, echo=FALSE}
-Mean_table = tibble(
-  Model = c("Exponential", "Weibull", "Cox"),
-  Gamma_0.5 = c(mean(result_0.5$exp_beta), mean(result_0.5$weibull_beta), mean(result_0.5$cox_beta)),
-  Gamma_1 = c(mean(result_1$exp_beta), mean(result_1$weibull_beta),mean(result_1$cox_beta)),
-  Gamma_2 = c(mean(result_2$exp_beta), mean(result_2$weibull_beta), mean(result_2$cox_beta)),
-  Gamma_5 = c(mean(result_5$exp_beta), mean(result_5$weibull_beta), mean(result_5$cox_beta)),
-  Lognormal = c(mean(result_ln$exp_beta), mean(result_ln$weibull_beta), mean(result_ln$cox_beta))
-) %>%
-  knitr::kable()
-Mean_table
-```
 
 \begin{center}
 
@@ -121,3 +110,9 @@ Table #:
 
 # Conclusions
 
+# Contributions
+
+Charly Fowler worked on editing simulation functions, perform piecewise simulation and creating datasets of results.
+Hanfei Qi worked on creating the format of simulation functions and editing plotting functions.
+Robert Tumasian III worked on editing simulation functions, perform lognormal simulation and creating datasets of results.
+Haoyang Yi worked on creating plotting functions and editing simulation functions.
