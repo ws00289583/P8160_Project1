@@ -11,15 +11,15 @@ library(tidyverse)
 
 # Objectives
 
-The goal of this study is to evaluate how misspecifying the baseline hazard function can influence the estimation of treatment effects in survival. This work focuses on conducting simulations to compare the discrete, exponential, Weibull and lognormal proportional hazards models to the semi-parameteric Cox proportional hazards model. We also investigate the impact of utilizing an overly complicated model (e.g., Cox) when a less complex model (e.g., exponential) is sufficient.
+The goal of this study is to evaluate how misspecifying the baseline hazard function can influence the estimation of treatment effects in survival. This work focuses on conducting simulations to compare the discrete, exponential, Weibull, and lognormal proportional hazards models to the semi-parameteric Cox proportional hazards model. We also discuss the impact of utilizing an overly complicated model (e.g., Cox) when a less complex model (e.g., exponential) is sufficient.
 
 # Statistical Methods
 
-Survival analysis is used to analyze time-to-event data (e.g., time to symptom onset or time to mortality). Survival functions ($S(t)$) measure the probability of an individual not experiencing an event past a certain time $t$. Similarly, hazard functions ($h(t)$) measure the instantaneous risk of failure at a certain time $t$, given that the individual has not experienced an event until that time. The hazard function can be expressed as $\frac{f(t)}{S(t)}$, where $f(t)$ is the distribution of survival times.\par
+Survival analysis is used to analyze time-to-event data (e.g., time to symptom onset or time to mortality). Survival functions, $S(t)$, measure the probability of an individual not experiencing an event past a certain time $t$. Similarly, hazard functions, $h(t)$, measure the instantaneous risk of failure at a certain time $t$, given that the individual has not experienced an event until that time. The hazard function can be expressed as $\frac{f(t)}{S(t)}$, where $f(t)$ is the distribution of survival times.\par
 
-The purpose of proportional hazards modeling is to assess the effectiveness of a particular treatment ($X$) over survival time $T$, where the hazard ratio for patient $i$ at time $t$ is defined as $h_i(t)=h_0(t)e^{x_i\theta}$. Here, $h_0(t)$ denotes the pre-specified baseline hazard function, $x_i$ indicates treatment allocation (0=control, 1=treatment), and $\theta$ represents the log hazard ratio, or the hazard reduction among treated individuals compared to the control group. Thus, the proportional hazard can be expressed as $\frac{h(t|x_0)}{h(t|x_1)}=e^{\beta(x_0-x_1)}$, which is independent of survival time $t$.\par
+One purpose of proportional hazards modeling is to assess the effectiveness of a particular treatment ($X$) over survival time $T$, where the hazard ratio for patient $i$ at time $t$ is defined as $h_i(t)=h_0(t)e^{x_i\theta}$. Here, $h_0(t)$ denotes the pre-specified baseline hazard function, $x_i$ indicates treatment allocation (0=control, 1=treatment), and $\theta$ represents the log hazard ratio, or the hazard reduction among treated individuals compared to the control group. Thus, the proportional hazard can be expressed as $\frac{h(t|x_0)}{h(t|x_1)}=e^{\beta(x_0-x_1)}$, which is independent of survival time $t$.\par
 
-For each of the models we consider implement different baseline hazard functions, except for the Cox model, which estimates $\theta$ without this specification. Baseline hazard functions for the exponential, Weibull, and lognormal models are provided in Table 1 below. The baseline hazard function for our discrete model is stepwise, and the Cox model does not utilize a baseline hazard function.____(Are we using lognormal model or we simulate a lognormal situation?)\par
+Each of the models we consider implement a different baseline hazard function, except for the Cox model, which estimates $\theta$ without this specification. Baseline hazard functions for the exponential, Weibull, and lognormal models are provided in Table 1 below. The baseline hazard function for our discrete model is stepwise, and the Cox model does not utilize a baseline hazard function.\par
 
 In order to finding a case that Cox model performs best, we also consider piecewise hazards____
 Note: Need to explain the principle of piecewise method.
@@ -28,12 +28,12 @@ $$
 \begin{array} {lccc}
 \hline \text {} & \text { Exponential } & \text { Weibull } & \text { Lognormal } \\
 \hline
-\text { $h_0(t)$ } & \lambda & \lambda\gamma t^{\gamma-1} & \frac{\frac{1}{t \sigma \sqrt{2 \pi}} \exp \left[\frac{-1}{2 \sigma^{2}}\{\ln (t)-\mu\}^{2}\right]}{1-\Phi\left\{\frac{\ln (t)-\mu}{\sigma}\right\}} \\
+\text { $h_0(t)$ } & \lambda & \lambda\gamma t^{\gamma-1} & \frac{\frac{1}{t \sigma} \phi(\frac{ln(t)}{\sigma})}{\Phi(\frac{-ln(t)}{\sigma})} \\
 \hline
 \end{array}
 $$
 
-Table 1. Baseline hazard functions, $h_0(t)$, for the continuous models considered in this study. $\mu$ and $\sigma$ are mean and standard deviation of normal distribution. The normal CDF is denoted by $\Phi$.
+Table 1. Baseline hazard functions, $h_0(t)$, for the continuous models considered in this study. The normal PDF and CDF are denoted by $\phi$ and $\Phi$, respectively.
 
 # Simulation Design
 
@@ -41,7 +41,7 @@ We simulated survival data
 
 All simulation data was generated using the `simsurv` function in the `simsurv` package. We defined a binomial treatment variable (`trt`) with $p=0.5$ to ensure equal likelihood of random assignment to the treatment or control group.Parameters are set according to different distributions of hazards.The resulting dataset contains time of event(`eventtime`), status(`status`) and treatment(`trt`).
 
-For the Weibull model, we considered various parameters ($\gamma=0.5,1,2,5$, where $\gamma=1$ denotes the exponential model. We used $\beta = -0.5$ as the true effect size. For the lognormal situation, we used $\mu = 0, \sigma = 0.5$ as parameters of normal distribution and $\beta = -0.5$ as the true effect size. 
+For the Weibull model, we considered various parameters ($\gamma=0.5,1,2,5$, where $\gamma=1$ denotes the exponential model. We used $\beta = -0.5$ as the true effect size. For the lognormal model, we used $\mu = 0$ and $\sigma = 0.5$ as parameters, and $\beta = -0.5$ as the true effect size. 
 
 In piecewise simulation, we simulated a set of 20 piecewise hazards specified by seed() function______
 Note: more details of piecewise simulation are needed
@@ -80,7 +80,9 @@ mean_beta = tibble(
 MSE = function(beta, n=1000) {
   return(sum((-0.5 - beta)^2)/n)
 }
+```
 
+```{r, echo=FALSE}
 MSE_table = tibble(
   Model = c("Exponential", "Weibull", "Cox"),
   Gamma_0.5 = c(MSE(result_0.5$exp_beta), MSE(result_0.5$weibull_beta), MSE(result_0.5$cox_beta)),
@@ -93,6 +95,7 @@ MSE_table = tibble(
   knitr::kable()
 MSE_table
 ```
+
 To assess model performance, we used mean-squared error (MSE) and ____. We also plotted the survival probability versus time of each model, with reference lines.
 
 NOTE: shouldn't the tables be part of results? feel free to change it!  
