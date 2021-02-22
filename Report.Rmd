@@ -160,6 +160,10 @@ Table #:
 
 # Conclusions
 
+By comparing the Mean square error(MSE) and mean of $\beta$ derived from three models in diffrent simulations, we found that misspecifying the baseline hazard function can lead to significant differences between actual value of $\beta$ and the truth(which was set as -0.5). For example, we got high MSEs and biased means of $\beta$ when applying exponential and Weibull model in data simulated by gamma distributions, which indicates that the treatment effect was not evaluated well. In this case, Cox model provide small MSEs, while means of $\beta$ are quite close to the truth. Thus we conclude that Cox model can estimate the treatment effect with high accuracy and precision which avoids the impacts of misspecifying the baseline hazard function.
+
+Case of the impact of fitting too complicated a model when an exponential is sufficient_____________
+
 # Contributions
 
 Charly Fowler worked on simulation functions, performed piecewise simulation, plotted baseline hazard curves, and created datasets of results.
