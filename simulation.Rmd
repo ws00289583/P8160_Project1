@@ -37,8 +37,8 @@ sim_weibull = function(gamma, n){
   fit.cox <- tidy(coxph(Surv(dat$eventtime, dat$status) ~ dat$trt))
   
   #extract beta
-  result = tibble(exp_beta = c(-fit.exponential$estimate[1]), 
-                  weibull_beta = c(-fit.weibull$estimate[1]),
+  result = tibble(exp_beta = c(-fit.exponential$estimate[2]), 
+                  weibull_beta = c(-fit.weibull$estimate[2]),
                   cox_beta =c(fit.cox$estimate), 
                   dist = "weibull",
                   gamma = gamma, 
@@ -106,8 +106,8 @@ sim_lnorm = function(n){
   fit.cox <- tidy(coxph(Surv(dat$eventtime, dat$status) ~ dat$trt))
   
   #extract beta
-  result = tibble(exp_beta = c(-fit.exponential$estimate[1]), 
-                  weibull_beta = c(-fit.weibull$estimate[1]),
+  result = tibble(exp_beta = c(-fit.exponential$estimate[2]), 
+                  weibull_beta = c(-fit.weibull$estimate[2]),
                   cox_beta =c(fit.cox$estimate), 
                   dist = "lnorm",
                   gamma = NA, 
@@ -158,8 +158,8 @@ sim_piece = function(n){
   fit.cox <- tidy(coxph(Surv(dat$eventtime, dat$status) ~ dat$trt))
   
   #extract beta
-  result = tibble(exp_beta = c(-fit.exponential$estimate[1]), 
-                  weibull_beta = c(-fit.weibull$estimate[1]),
+  result = tibble(exp_beta = c(-fit.exponential$estimate[2]), 
+                  weibull_beta = c(-fit.weibull$estimate[2]),
                   cox_beta =c(fit.cox$estimate), 
                   dist = "piecewise",
                   gamma = NA, 
