@@ -11,7 +11,7 @@ library(tidyverse)
 
 # Objectives
 
-The goal of this study is to evaluate how misspecifying the baseline hazard function can influence the estimation of treatment effects in survival without censored observations (all subjects are followed throughout the entire study; no dropout/loss). This work focuses on conducting simulations to compare the exponential and Weibull proportional hazards models to the Cox proportional hazards model. We also discuss the impact of utilizing an overly complicated model (e.g., Cox) when a less complex model (e.g., exponential) is sufficient.
+The goal of this study is to evaluate how misspecifying the baseline hazard function can influence the estimation of treatment effects in survival without censored observations (all subjects have an event throughout the study). This work focuses on conducting simulations to compare the exponential and Weibull proportional hazards models to the Cox proportional hazards model. We also discuss the impact of utilizing an overly complicated model (e.g., Cox) when a less complex model (e.g., exponential) is sufficient.
 
 # Statistical Methods
 
