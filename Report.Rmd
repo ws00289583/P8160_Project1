@@ -196,18 +196,43 @@ MSE_table
 
 
 
+\begin{center}
+
+\end{center}
+
+
+Table 2. The MSE table of three models with each simulation data.
+
+```{r, echo=FALSE}
+Mean_table = tibble(
+  Model = c("Exponential", "Weibull", "Cox"),
+  Gamma_0.5 = c(mean(result_0.5$exp_beta), mean(result_0.5$weibull_beta), mean(result_0.5$cox_beta)),
+  Gamma_1 = c(mean(result_1$exp_beta), mean(result_1$weibull_beta), mean(result_1$cox_beta)),
+  Gamma_2 = c(mean(result_2$exp_beta), mean(result_2$weibull_beta), mean(result_2$cox_beta)),
+  Gamma_5 = c(mean(result_5$exp_beta), mean(result_5$weibull_beta), mean(result_5$cox_beta)),
+  Lognormal = c(mean(result_ln$exp_beta), mean(result_ln$weibull_beta), mean(result_ln$cox_beta)),
+  Piecewise = c(mean(result_pw$exp_beta), mean(result_pw$weibull_beta), mean(result_pw$cox_beta))
+) %>% # Mean of 1000 beta
+  knitr::kable()
+Mean_table
+```
+
 
 \begin{center}
 
 \end{center}
 
-Table 2. The MSE table of three models with each simulation data.
+
+Table 3. The Mean table of three models with each simulation data.
+
 
 # Conclusions
 
-By comparing the Mean square error(MSE) and mean of $\beta$ derived from three models in diffrent simulations, we found that misspecifying the baseline hazard function can lead to significant differences between actual value of $\beta$ and the truth(which was set as -0.5). For example, we got high MSEs and biased means of $\beta$ when applying exponential and Weibull model in data simulated by gamma distributions, which indicates that the treatment effect was not evaluated well. In this case, Cox model provide small MSEs, while means of $\beta$ are quite close to the truth. Thus we conclude that Cox model can estimate the treatment effect with high accuracy and precision which avoids the impacts of misspecifying the baseline hazard function.
+By comparing the Mean square error(MSE) and mean of $\beta$ derived from three models in diffrent simulations, we found that misspecifying the baseline hazard function can lead to significant differences between actual value of $\beta$ and the truth(which was set as -0.5). 
 
-Case of the impact of fitting too complicated a model when an exponential is sufficient_____________
+For example, we got high MSEs and biased means of $\beta$ when applying exponential and Weibull model in data simulated by lognormal distributions, which indicates that the treatment effect was not evaluated well. We further confirmed the deviated estimation through plots of survival probability versus time where Weibull and exponential model can not provide the prediction curve that match the actual. In this case, Cox model provided small MSEs, while means of $\beta$ are quite close to the truth. Also the prediction curve of Cox model was quite consistent with the actual. Thus we concluded that Cox model can estimate the treatment effect with high accuracy and precision which avoids the impacts of misspecifying the baseline hazard function. 
+
+Case of the impact of fitting too complicated a model when an exponential is sufficient was found in simulation that $\gamma = 1$. In this case all three models had good performance in MSE and mean of $\beta$ with slight difference, which indicates that exponential model is sufficient. By observing the image, we noticed that the cox model had over-fitting to the data with low survival probability(the curve extended to T = 150), which may lead to a greater impact of end time data (such as censored data) in practical applications. Exponential prediction curve only extended to T = 50, which indicates that exponential model can avoid this impact since it has weaker dependence on end time data.
 
 # Contributions
 
