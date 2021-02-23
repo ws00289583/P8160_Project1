@@ -200,10 +200,10 @@ sWei <- survreg(s ~ as.factor(trt),dist='weibull',data=dat)
 sExp <- survreg(s ~ as.factor(trt),dist='exp',data=dat)
 sCox <- coxph(s ~ trt,data=dat)
 
-s <- with(dat,Surv(eventtime,status))
+
 fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
 baseline <- basehaz(sCox) # use Cox model to plot hazard rates
-par(mfrow=c(2,2))
+par(mfrow=c(1,3))
     plot(fKM,main = 'cox')
     lines(survfit(sCox,newdata=data.frame(trt=1),conf.int = F),col='blue')
     lines(survfit(sCox,newdata=data.frame(trt=0),conf.int = F),col='red')
@@ -213,12 +213,11 @@ par(mfrow=c(2,2))
     plot(fKM,main = 'exponential')
     lines(predict(sExp, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
     lines(predict(sExp, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(baseline$time, baseline$hazard, type='l',main="Hazard rates??", xlab = "Time", ylab = "Hazard") 
-    lines(baseline$time, exp(sCox$coefficients[1])*baseline$hazard, col="blue")
 }
 
 plot_weibull(0.5, 1000)
-
+plot_weibull(1,1000)
+plot_weibull(2,1000)
 ```
 
 Fit and plot lognormal dist using three models
@@ -241,10 +240,10 @@ sWei <- survreg(s ~ as.factor(trt),dist='weibull',data=dat)
 sExp <- survreg(s ~ as.factor(trt),dist='exp',data=dat)
 sCox <- coxph(s ~ trt,data=dat)
 
-s <- with(dat,Surv(eventtime,status))
+
 fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
 baseline <- basehaz(sCox) # use Cox model to plot hazard rates
-par(mfrow=c(2,2))
+par(mfrow=c(1,3))
     plot(fKM,main = 'cox')
     lines(survfit(sCox,newdata=data.frame(trt=1),conf.int = F),col='blue')
     lines(survfit(sCox,newdata=data.frame(trt=0),conf.int = F),col='red')
@@ -254,10 +253,61 @@ par(mfrow=c(2,2))
     plot(fKM,main = 'exponential')
     lines(predict(sExp, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
     lines(predict(sExp, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(baseline$time, baseline$hazard, type='l',main="Hazard rates??", xlab = "Time", ylab = "Hazard") 
-    lines(baseline$time, exp(sCox$coefficients[1])*baseline$hazard, col="blue")
+
 }
 
 plot_lnorm(100)
+```
+
+Fit and plot piece-wise hazard using three models
+```{r}
+plot_pw = function(n){
+  
+# sim piece-wise data
+ncuts <- 19
+cuts <- sort(rexp(ncuts, rate = 0.1))
+pw_times <- c(0, cuts)
+N <- length(pw_times)
+pw_haz <- sort(abs(rnorm(N)))
+pw_haz <- abs(pw_haz - median(pw_haz))
+
+haz <- function(t, x, betas, lb_interval, haz_interval, ...) {
+  exp(betas * (x)) * haz_interval[findInterval(t, lb_interval)]
+}
+
+cov <- data.frame(trt = rbinom(n, 1, 0.5))
+
+
+dat <- cbind(simsurv(hazard = haz, 
+                 x = cov,
+                 lb_interval = pw_times, 
+                 haz_interval = pw_haz, 
+                 betas = c(trt = -0.5)), 
+               cov)
+  
+# Merge the simulated event times onto covariate data frame
+# No parameters need to be changed
+s <- with(dat,Surv(eventtime,status))
+sWei <- survreg(s ~ as.factor(trt),dist='weibull',data=dat)
+sExp <- survreg(s ~ as.factor(trt),dist='exp',data=dat)
+sCox <- coxph(s ~ trt,data=dat)
+
+
+fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
+baseline <- basehaz(sCox) # use Cox model to plot hazard rates
+par(mfrow=c(1,3))
+    plot(fKM,main = 'cox')
+    lines(survfit(sCox,newdata=data.frame(trt=1),conf.int = F),col='blue')
+    lines(survfit(sCox,newdata=data.frame(trt=0),conf.int = F),col='red')
+    plot(fKM,main = 'weibull')
+    lines(predict(sWei, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(fKM,main = 'exponential')
+    lines(predict(sExp, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sExp, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+
+}
+
+plot_pw(100)
 ```
 
