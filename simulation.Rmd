@@ -33,12 +33,12 @@ sim_weibull = function(gamma, n){
   
   #fit models
   fit.exponential <- tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "exponential"))
-  fit.weibull <- tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "weibull"))
+  fit.weibull <- survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "weibull")
   fit.cox <- tidy(coxph(Surv(dat$eventtime, dat$status) ~ dat$trt))
   
   #extract beta
   result = tibble(exp_beta = c(-fit.exponential$estimate[2]), 
-                  weibull_beta = c(-fit.weibull$estimate[2]),
+                  weibull_beta = c(-fit.weibull$coefficients[2])/fit.weibull$scale,
                   cox_beta =c(fit.cox$estimate), 
                   dist = "weibull",
                   gamma = gamma, 
@@ -102,12 +102,12 @@ sim_lnorm = function(n){
   
   #fit models
   fit.exponential <-tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "exponential"))
-  fit.weibull <- tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "weibull"))
+  fit.weibull <- survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "weibull")
   fit.cox <- tidy(coxph(Surv(dat$eventtime, dat$status) ~ dat$trt))
   
   #extract beta
   result = tibble(exp_beta = c(-fit.exponential$estimate[2]), 
-                  weibull_beta = c(-fit.weibull$estimate[2]),
+                  weibull_beta = c(-fit.weibull$coefficients[2])/fit.weibull$scale,
                   cox_beta =c(fit.cox$estimate), 
                   dist = "lnorm",
                   gamma = NA, 
@@ -154,12 +154,12 @@ sim_piece = function(n){
   
   #fit models
   fit.exponential <-tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "exponential"))
-  fit.weibull <- tidy(survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "weibull"))
+  fit.weibull <- survreg(Surv(dat$eventtime, dat$status) ~ dat$trt, dist = "weibull")
   fit.cox <- tidy(coxph(Surv(dat$eventtime, dat$status) ~ dat$trt))
   
   #extract beta
   result = tibble(exp_beta = c(-fit.exponential$estimate[2]), 
-                  weibull_beta = c(-fit.weibull$estimate[2]),
+                  weibull_beta = c(-fit.weibull$coefficients[2])/fit.weibull$scale,
                   cox_beta =c(fit.cox$estimate), 
                   dist = "piecewise",
                   gamma = NA, 
