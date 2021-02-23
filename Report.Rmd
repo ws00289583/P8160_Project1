@@ -7,6 +7,7 @@ output: pdf_document
 
 ```{r, include=FALSE}
 library(tidyverse)
+library(png)
 ```
 
 # Objectives
@@ -99,8 +100,56 @@ When simulating the data, we used $\beta = -0.5$ as the true effect size for all
 We set the sample size as 100 and for each underlying distribution sampled 1000 times to get the dataframe of results. Each time we fitted exponential, Weibull and cox model to the data and extracted the $\beta$ estimates provided by three models.
 
 # Results
-* plots should come before simulation results, less complex 
+To assess model performance, we plotted the survival probability versus time of all models with each simulation data. We also used mean-squared error (MSE) to check model performance.
 
+```{r suv vs time (0.5), echo=FALSE}
+pp <- readPNG("Gamma_0.5.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 2. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 0.5$.
+
+```{r suv vs time (1), echo=FALSE}
+pp <- readPNG("Gamma_1.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 3. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 1$.
+
+```{r suv vs time (2), echo=FALSE}
+pp <- readPNG("Gamma_2.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 4. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 2$.
+
+```{r suv vs time (5), echo=FALSE}
+pp <- readPNG("Gamma_5.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 5. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 5$.
+
+```{r suv vs time logn, echo=FALSE}
+pp <- readPNG("lognormal.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 6. Survival probability versus time of each model, baseline hazard function follows lognormal distribution.
+
+```{r suv vs time pw, echo=FALSE}
+pp <- readPNG("piecewise.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 7. Survival probability versus time of each model, baseline hazard function follows piecewise distribution.
+  
 ```{r, include=FALSE}
 path_to_gamma0.5= "./results_gamma0.5.csv"
 path_to_gamma1= "./results_gamma1.csv"
@@ -113,7 +162,7 @@ result_1 = read_csv(file = path_to_gamma1)
 result_2 = read_csv(file = path_to_gamma2)
 result_5 = read_csv(file = path_to_gamma5)
 result_ln = read_csv(file = path_to_logn)
-result_pw = read_csv(file = path_to_piecewise) # Load the datasets
+result_pw = read_csv(file = path_to_piecewise) # Load the sets
 
 mean_beta = tibble(
   Model = c("Exponential", "Weibull", "Cox"),
@@ -144,19 +193,15 @@ MSE_table = tibble(
 MSE_table
 ```
 
-To assess model performance, we used mean-squared error (MSE) and ____. We also plotted the survival probability versus time of each model, with reference lines.
 
-NOTE: shouldn't the tables be part of results? feel free to change it!  
-NOTE2: Values look weird.  
-NOTE3: I couldn't find an easy way to plot hazard ratio vs. time, but plot cumulative hazard vs. time is possible.  
+
+
 
 \begin{center}
 
 \end{center}
 
-Table #:
-
-
+Table 2. The MSE table of three models with each simulation data.
 
 # Conclusions
 
@@ -173,5 +218,4 @@ Haoyang Yi worked on creating plotting functions and editing simulation function
 All members contributed equally to this project.
 
 # References 
-
-https://www.jstatsoft.org/article/view/v097i03 ___ need to cite properly
+Brilleman, Samuel, Rory Wolfe, Margarita Moreno-Betancur, & Michael J. Crowther. "Simulating Survival Data Using the simsurv R Package." \textit{Journal of Statistical Software} [Online], 97.3 (2021): 1 - 27. Web. 23 Feb. 2021
