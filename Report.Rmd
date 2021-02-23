@@ -7,11 +7,12 @@ output: pdf_document
 
 ```{r, include=FALSE}
 library(tidyverse)
+library(png)
 ```
 
 # Objectives
 
-The goal of this study is to evaluate how misspecifying the baseline hazard function can influence the estimation of treatment effects in survival. This work focuses on conducting simulations to compare the exponential and Weibull proportional hazards models to the semi-parameteric Cox proportional hazards model. We also discuss the impact of utilizing an overly complicated model (e.g., Cox) when a less complex model (e.g., exponential) is sufficient.
+The goal of this study is to evaluate how misspecifying the baseline hazard function can influence the estimation of treatment effects in survival without censored observations (all subjects have an event throughout the study). This work focuses on conducting simulations to compare the exponential and Weibull proportional hazards models to the Cox proportional hazards model. We also discuss the impact of utilizing an overly complicated model (e.g., Cox) when a less complex model (e.g., exponential) is sufficient.
 
 # Statistical Methods
 
@@ -19,7 +20,7 @@ Survival analysis is used to analyze time-to-event data (e.g., time to symptom o
 
 One purpose of proportional hazards modeling is to assess the effectiveness of a particular treatment ($X$) over survival time $T$, where the hazard ratio for patient $i$ at time $t$ is defined as $h_i(t)=h_0(t)e^{x_i\beta}$. Here, $h_0(t)$ denotes the pre-specified baseline hazard function, $x_i$ indicates treatment allocation (0=control, 1=treatment), and $\beta$ represents the log hazard ratio, or the hazard reduction among treated individuals compared to the control group. Thus, the proportional hazard can be expressed as $\frac{h(t|x_0)}{h(t|x_1)}=e^{\beta(x_0-x_1)}$, which is independent of survival time $t$.\par
 
-We consider three models: exponential, Weibull, and Cox. The exponential and Weibull models implement different baseline hazard functions, while the Cox model, estimates $\beta$ without this specification. It is important to note that the Exponential model is nested within the Weibull model, as an exponential distribution is a special case of the Weibull distribution where $\gamma = 1$. All models impose the restraint that the effect of the treatment be multiplicative on the hazard curve. The exponential and Weibull hazard curves can be seen below, in Table 1.\par
+We consider three models: exponential, Weibull, and Cox. The exponential and Weibull models implement different baseline hazard functions, while the Cox model estimates $\beta$ without this specification. Notably, even if the baseline hazard function is known, the Cox model is still expected to perform well due to its semi-parametric efficiency. It is important to note that the Exponential model is nested within the Weibull model, as an exponential distribution is a special case of the Weibull distribution where $\gamma = 1$. All models impose the restraint that the effect of the treatment be multiplicative on the hazard curve. The exponential and Weibull hazard curves can be seen below, in Table 1.\par
 
 
 
@@ -99,8 +100,56 @@ When simulating the data, we used $\beta = -0.5$ as the true effect size for all
 We set the sample size as 100 and for each underlying distribution sampled 1000 times to get the dataframe of results. Each time we fitted exponential, Weibull and cox model to the data and extracted the $\beta$ estimates provided by three models.
 
 # Results
-* plots should come before simulation results, less complex 
+To assess model performance, we plotted the survival probability versus time of all models with each simulation data. We also used mean-squared error (MSE) to check model performance.
 
+```{r suv vs time (0.5), echo=FALSE}
+pp <- readPNG("Gamma_0.5.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 2. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 0.5$.
+
+```{r suv vs time (1), echo=FALSE}
+pp <- readPNG("Gamma_1.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 3. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 1$.
+
+```{r suv vs time (2), echo=FALSE}
+pp <- readPNG("Gamma_2.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 4. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 2$.
+
+```{r suv vs time (5), echo=FALSE}
+pp <- readPNG("Gamma_5.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 5. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 5$.
+
+```{r suv vs time logn, echo=FALSE}
+pp <- readPNG("lognormal.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 6. Survival probability versus time of each model, baseline hazard function follows lognormal distribution.
+
+```{r suv vs time pw, echo=FALSE}
+pp <- readPNG("piecewise.png")
+plot.new() 
+rasterImage(pp,0,0,1,1)
+```
+
+Figure 7. Survival probability versus time of each model, baseline hazard function follows piecewise distribution.
+  
 ```{r, include=FALSE}
 path_to_gamma0.5= "./results_gamma0.5.csv"
 path_to_gamma1= "./results_gamma1.csv"
@@ -113,7 +162,7 @@ result_1 = read_csv(file = path_to_gamma1)
 result_2 = read_csv(file = path_to_gamma2)
 result_5 = read_csv(file = path_to_gamma5)
 result_ln = read_csv(file = path_to_logn)
-result_pw = read_csv(file = path_to_piecewise) # Load the datasets
+result_pw = read_csv(file = path_to_piecewise) # Load the sets
 
 mean_beta = tibble(
   Model = c("Exponential", "Weibull", "Cox"),
@@ -144,33 +193,54 @@ MSE_table = tibble(
 MSE_table
 ```
 
-To assess model performance, we used mean-squared error (MSE) and ____. We also plotted the survival probability versus time of each model, with reference lines.
 
-NOTE: shouldn't the tables be part of results? feel free to change it!  
-NOTE2: Values look weird.  
-NOTE3: I couldn't find an easy way to plot hazard ratio vs. time, but plot cumulative hazard vs. time is possible.  
+
 
 \begin{center}
 
 \end{center}
 
-Table #:
 
+Table 2. The MSE table of three models with each simulation data.
+
+```{r, echo=FALSE}
+Mean_table = tibble(
+  Model = c("Exponential", "Weibull", "Cox"),
+  Gamma_0.5 = c(mean(result_0.5$exp_beta), mean(result_0.5$weibull_beta), mean(result_0.5$cox_beta)),
+  Gamma_1 = c(mean(result_1$exp_beta), mean(result_1$weibull_beta), mean(result_1$cox_beta)),
+  Gamma_2 = c(mean(result_2$exp_beta), mean(result_2$weibull_beta), mean(result_2$cox_beta)),
+  Gamma_5 = c(mean(result_5$exp_beta), mean(result_5$weibull_beta), mean(result_5$cox_beta)),
+  Lognormal = c(mean(result_ln$exp_beta), mean(result_ln$weibull_beta), mean(result_ln$cox_beta)),
+  Piecewise = c(mean(result_pw$exp_beta), mean(result_pw$weibull_beta), mean(result_pw$cox_beta))
+) %>% # Mean of 1000 beta
+  knitr::kable()
+Mean_table
+```
+
+
+\begin{center}
+
+\end{center}
+
+
+Table 3. The Mean table of three models with each simulation data.
 
 
 # Conclusions
 
-By comparing the Mean square error(MSE) and mean of $\beta$ derived from three models in diffrent simulations, we found that misspecifying the baseline hazard function can lead to significant differences between actual value of $\beta$ and the truth(which was set as -0.5). For example, we got high MSEs and biased means of $\beta$ when applying exponential and Weibull model in data simulated by gamma distributions, which indicates that the treatment effect was not evaluated well. In this case, Cox model provide small MSEs, while means of $\beta$ are quite close to the truth. Thus we conclude that Cox model can estimate the treatment effect with high accuracy and precision which avoids the impacts of misspecifying the baseline hazard function.
+By comparing the Mean square error(MSE) and mean of $\beta$ derived from three models in diffrent simulations, we found that misspecifying the baseline hazard function can lead to significant differences between actual value of $\beta$ and the truth(which was set as -0.5). 
 
-Case of the impact of fitting too complicated a model when an exponential is sufficient_____________
+For example, we got high MSEs and biased means of $\beta$ when applying exponential and Weibull model in data simulated by lognormal distributions, which indicates that the treatment effect was not evaluated well. We further confirmed the deviated estimation through plots of survival probability versus time where Weibull and exponential model can not provide the prediction curve that match the actual. In this case, Cox model provided small MSEs, while means of $\beta$ are quite close to the truth. Also the prediction curve of Cox model was quite consistent with the actual. Thus we concluded that Cox model can estimate the treatment effect with high accuracy and precision which avoids the impacts of misspecifying the baseline hazard function. 
+
+Case of the impact of fitting too complicated a model when an exponential is sufficient was found in simulation that $\gamma = 1$. In this case all three models had good performance in MSE and mean of $\beta$ with slight difference, which indicates that exponential model is sufficient. By observing the image, we noticed that the cox model had over-fitting to the data with low survival probability(the curve extended to T = 150), which may lead to a greater impact of end time data (such as censored data) in practical applications. Exponential prediction curve only extended to T = 50, which indicates that exponential model can avoid this impact since it has weaker dependence on end time data.
 
 # Contributions
 
 Charly Fowler worked on simulation functions, performed piecewise simulation, plotted baseline hazard curves, and created datasets of results.
-Hanfei Qi worked on creating the format of simulation functions and editing plotting functions.
-Robert Tumasian III worked on editing simulation functions, perform lognormal simulation and creating datasets of results.
+Hanfei Qi worked on formatting simulation functions and editing plotting functions.
+Robert Tumasian III worked on editing simulation functions, performing lognormal simulation, and creating datasets of results.
 Haoyang Yi worked on creating plotting functions and editing simulation functions.
+All members contributed equally to this project.
 
 # References 
-
-https://www.jstatsoft.org/article/view/v097i03 ___ need to cite properly
+Brilleman, Samuel, Rory Wolfe, Margarita Moreno-Betancur, & Michael J. Crowther. "Simulating Survival Data Using the simsurv R Package." \textit{Journal of Statistical Software} [Online], 97.3 (2021): 1 - 27. Web. 23 Feb. 2021
