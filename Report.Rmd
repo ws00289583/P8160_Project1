@@ -107,53 +107,8 @@ To assess model performance, we plotted the survival probability versus time for
 
 In the figure below, we can see the impact of distribution misspecification when fitting a proportional hazard model. For example, the exponential model cannot accurately fit a baseline hazard distribution with $\gamma = 5$. For the data with lognormal or piecewise baseline hazard curves, neither the Weibull nor the exponential models follow the datas' survival curve. We also note that the Cox proportional hazard model has good fit across all 6 datasets, even when a simpler model would suffice. 
 
-```{r suv vs time (0.5), echo=FALSE,include=FALSE, , eval=F}
-pp <- readPNG("Gamma_0.5.png")
-plot.new() 
-rasterImage(pp,0,0,1,1)
-```
 
-Figure 2. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 0.5$.
-
-```{r suv vs time (1), echo=FALSE,include=FALSE, eval=F}
-pp <- readPNG("Gamma_1.png")
-plot.new() 
-rasterImage(pp,0,0,1,1)
-```
-
-Figure 3. Survival probability versus time of each model, baseline hazard function follows Exponential distribution.
-
-```{r suv vs time (2), echo=FALSE,include=FALSE, , eval=F}
-pp <- readPNG("Gamma_2.png")
-plot.new() 
-rasterImage(pp,0,0,1,1)
-```
-
-Figure 4. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 2$.
-
-```{r suv vs time (5), echo=FALSE,include=FALSE, , eval=F}
-pp <- readPNG("Gamma_5.png")
-plot.new() 
-rasterImage(pp,0,0,1,1)
-```
-
-Figure 5. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 5$.
-
-```{r suv vs time logn, echo=FALSE,include=FALSE, , eval=F}
-pp <- readPNG("lognormal.png")
-plot.new() 
-rasterImage(pp,0,0,1,1)
-```
-
-Figure 6. Survival probability versus time of each model, baseline hazard function follows lognormal distribution.
-
-```{r suv vs time pw, echo=FALSE,include=FALSE, , eval=F}
-pp <- readPNG("piecewise.png")
-plot.new() 
-rasterImage(pp,0,0,1,1)
-```
-
-Figure 7. Survival probability versus time of each model, baseline hazard function follows piecewise distribution.
+**Figure 2...
   
 In Table 2, for the six baseline hazard curves we calculate the MSE of the three models estimates for $\beta$. The Weibull model had the lowest MSE for data simulated from a Weibull hazard curve with $\gamma = 2,5$. The Cox proportional hazard model achieves lowest MSE among data simulated from exponential, Weibull with $\gamma = 0.5$, lognormal, and piecewise hazard curves. While the exponential model by MSE never performed best, its performance was nearly identical to the Cox model for data simulated from an exponential distribution. Similarly, for data from a Weibull with $\gamma = 0.5$, the Cox performed only slightly better. 
   
@@ -206,13 +161,8 @@ MSE_table = tibble(
 MSE_table
 ```
 
-\begin{center}
 
 Table 2. The MSE table of three models with each simulation data. Weibull models are identified as `Weib_`$\gamma$.
-
-\end{center}
-
-
 
 
 
@@ -221,16 +171,10 @@ Table 2. The MSE table of three models with each simulation data. Weibull models
 
 
 
+In Table 3, we see the breakdown of the MSE for each simulation and model into mean and variance. (...)
 
 
-
-
-
-
-
-
-
-\begin{center}
+\bigskip
 
 ```{r, echo=FALSE}
 Mean_table = tibble(
@@ -246,20 +190,24 @@ Mean_table = tibble(
 Mean_table
 ```
 
+
+
 Table 3. The Mean (and variance?) table of three models with each simulation data. Weibull models are identified as `Weib_`$\gamma$.
 
-\end{center}
 
+
+\bigskip
 
 
 
 # Conclusions
 
-By comparing the Mean square error(MSE) and mean of $\beta$ derived from three models in different simulations, we found that misspecifying the baseline hazard function can lead to significant differences between actual value of $\beta$ and the truth(which was set as -0.5). 
+By comparing the Mean square error(MSE) and mean of $\beta$ derived from three models in different simulations, we found that misspecifying the baseline hazard function can lead to significant differences between actual value of $\beta$ and the truth ($\beta = -0.5$). 
 
-For example, we got high MSEs and biased means of $\beta$ when applying exponential and Weibull model in data simulated by lognormal distributions, which indicates that the treatment effect was not evaluated well. We further confirmed the deviated estimation through plots of survival probability versus time where Weibull and exponential model can not provide the prediction curve that match the actual. In this case, Cox model provided small MSEs, while means of $\beta$ are quite close to the truth. Also the prediction curve of Cox model was quite consistent with the actual. Thus we concluded that Cox model can estimate the treatment effect with high accuracy and precision which avoids the impacts of misspecifying the baseline hazard function. 
+For example, the exponential and Weibull models obtained high MSEs and biased means (...) of $\beta$  in data simulated by the lognormal or piecewise distribution. We further confirmed the deviated estimation through of survival curves in Figure 2, where we see the Weibull and exponential model can not provide the a fitted curve to match the observed. For these simulations, the Cox model provided small MSE values, and the fitted curve of Cox PH model was quite consistent with the observed data. Thus we demonstrated that Cox model can estimate the treatment effect with high accuracy and precision compared to a misspecified distribution, as expected. 
 
-Case of the impact of fitting too complicated a model when an exponential is sufficient was found in simulation that $\gamma = 1$. In this case all three models had good performance in MSE and mean of $\beta$ with slight difference, which indicates that exponential model is sufficient. By observing the image, we noticed that the cox model had over-fitting to the data with low survival probability(the curve extended to T = 150), which may lead to a greater impact of end time data (such as censored data) in practical applications. Exponential prediction curve only extended to T = 50, which indicates that exponential model can avoid this impact since it has weaker dependence on end time data.
+On the other hand, in the case of the impact of fitting too complicated a model when an simpler model is sufficient, we found that there were minimal consequenses of the more complex models, in terms of MSE. For example, when fitting models on data from an exponential distribution, all three had very similar levels of MSE. There was no case where the Cox model performed significantly worse than other models, in terms of MSE. This confirms the finding that the Cox proportional hazard model is semi-parametrically efficient, as even when a simpler model would suffice it still performs well. The Cox model's good perfomance in these cases is further demonstrated in Figure 2, where we see it follows the observed data closely, regardless of the underlying hazard curve the data was sampled from.
+
 
 # Contributions
 
