@@ -339,6 +339,7 @@ MSE_table
 \bigskip
 
 
+
 ```{r, echo=FALSE}
 mean_sd_beta = tibble(
   Model = c("Exponential", "Weibull", "Cox"),
