@@ -25,12 +25,35 @@ cov <- data.frame(id = 1:500,
                     trt = rbinom(500, 1, 0.5))
   
 # Simulate the event times
-dat <- simsurv(lambdas = 0.1, 
+
+dat.weib0.5 <- simsurv(lambdas = 0.1, 
+               gammas = 0.5, #change gamma,or use lognormal simulation
+               betas = c(trt = -0.5), 
+               x = cov)
+
+dat.weib0.5 <- merge(cov, dat.weib0.5)
+
+
+dat.exp <- simsurv(lambdas = 0.1, 
                gammas = 1, #change gamma,or use lognormal simulation
                betas = c(trt = -0.5), 
                x = cov)
 
-dat <- merge(cov, dat)
+dat.exp <- merge(cov, dat.exp)
+
+dat.weib2 <- simsurv(lambdas = 0.1, 
+               gammas = 2, #change gamma,or use lognormal simulation
+               betas = c(trt = -0.5), 
+               x = cov)
+
+dat.weib2 <- merge(cov, dat.weib2)
+
+dat.weib5 <- simsurv(lambdas = 0.1, 
+               gammas = 5, #change gamma,or use lognormal simulation
+               betas = c(trt = -0.5), 
+               x = cov)
+
+dat.weib5 <- merge(cov, dat.weib5)
 
 
 ################### Generate lognormal dist data ###################
@@ -41,7 +64,7 @@ haz <- function(t, x, betas, mu, sigma) {
 }
 # sim log-norm data
 cov <- data.frame(trt = rbinom(100, 1, 0.5))
-dat <- cbind(simsurv(hazard = haz, 
+dat.lognorm <- cbind(simsurv(hazard = haz, 
                  x = cov,
                  mu = 0, 
                  sigma = 0.5,
@@ -63,7 +86,7 @@ haz <- function(t, x, betas, lb_interval, haz_interval, ...) {
 }
 
 cov <- data.frame(trt = rbinom(100, 1, 0.5))
-dat <- cbind(simsurv(hazard = haz, 
+dat.piecewise <- cbind(simsurv(hazard = haz, 
                  x = cov,
                  lb_interval = pw_times, 
                  haz_interval = pw_haz, 
@@ -72,33 +95,107 @@ dat <- cbind(simsurv(hazard = haz,
 
 # Merge the simulated event times onto covariate data frame
 # No parameters need to be changed
-s <- with(dat,Surv(eventtime,status))
-sWei <- survreg(s ~ as.factor(trt),dist='weibull',data=dat)
-sExp <- survreg(s ~ as.factor(trt),dist='exp',data=dat)
-sCox <- coxph(s ~ trt,data=dat)
+s.weib0.5 <- with(dat.weib0.5,Surv(eventtime,status))
+s.exp <- with(dat.exp,Surv(eventtime,status))
+s.weib2 <- with(dat.weib2,Surv(eventtime,status))
+s.weib5 <- with(dat.weib5,Surv(eventtime,status))
+s.lognorm <- with(dat.lognorm,Surv(eventtime,status))
+s.piecewise <- with(dat.piecewise,Surv(eventtime,status))
+
+sExp1 <- survreg(s.weib0.5 ~ as.factor(trt),dist='exp',data=dat.weib0.5)
+sExp2 <- survreg(s.exp ~ as.factor(trt),dist='exp',data=dat.exp)
+sExp3 <- survreg(s.weib2 ~ as.factor(trt),dist='exp',data=dat.weib2)
+sExp4 <- survreg(s.weib5 ~ as.factor(trt),dist='exp',data=dat.weib5)
+sExp5 <- survreg(s.lognorm ~ as.factor(trt),dist='exp',data=dat.lognorm)
+sExp6 <- survreg(s.piecewise ~ as.factor(trt),dist='exp',data=dat.piecewise)
+
+sWei1 <- survreg(s.weib0.5 ~ as.factor(trt),dist='weibull',data=dat.weib0.5)
+sWei2 <- survreg(s.exp ~ as.factor(trt),dist='weibull',data=dat.exp)
+sWei3 <- survreg(s.weib2 ~ as.factor(trt),dist='weibull',data=dat.weib2)
+sWei4 <- survreg(s.weib5 ~ as.factor(trt),dist='weibull',data=dat.weib5)
+sWei5 <- survreg(s.lognorm ~ as.factor(trt),dist='weibull',data=dat.lognorm)
+sWei6 <- survreg(s.piecewise ~ as.factor(trt),dist='weibull',data=dat.piecewise)
+
+sCox1 <- coxph(s.weib0.5 ~ trt,data=dat.weib0.5)
+sCox2 <- coxph(s.exp ~ trt,data=dat.exp)
+sCox3 <- coxph(s.weib2 ~ trt,data=dat.weib2)
+sCox4 <- coxph(s.weib5 ~ trt,data=dat.weib5)
+sCox5 <- coxph(s.lognorm ~ trt,data=dat.lognorm)
+sCox6 <- coxph(s.piecewise~ trt,data=dat.piecewise)
+
 ```
 
-```{r}
-s <- with(dat,Surv(eventtime,status))
-fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
-baseline <- basehaz(sCox)
-par(mfrow=c(2,2))
-    plot(fKM,main = 'cox')
-    lines(survfit(sCox,newdata=data.frame(trt=1),conf.int = F),col='green')
-    lines(survfit(sCox,newdata=data.frame(trt=0),conf.int = F),col='green')
-    plot(fKM,main = 'weibull')
-    lines(predict(sWei, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
-    lines(predict(sWei, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
-    plot(fKM,main = 'exponential')
-    lines(predict(sExp, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    lines(predict(sExp, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(baseline$time, baseline$hazard, type='l',main="Hazard rates", xlab = "Time", ylab = "Hazard") 
-    lines(baseline$time, exp(sCox$coefficients[1])*baseline$hazard, col="blue")
+```{r,fig.align=center}
+
+#fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
+#baseline <- basehaz(sCox)
+
+par(mfrow=c(6,3),pty="m")
+
+    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),main = 'Exponential')
+    lines(predict(sExp1, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp1, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),main = 'Weibull')
+    lines(predict(sWei1, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei1, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),main = 'Cox')
+    lines(survfit(sCox1,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox1,newdata=data.frame(trt=0),conf.int = F),col='green')
+    
+    plot(survfit(s.exp ~ trt,data=dat.exp))
+    lines(predict(sExp2, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp2, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.exp ~ trt,data=dat.exp))
+    lines(predict(sWei2, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei2, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.exp ~ trt,data=dat.exp))
+    lines(survfit(sCox2,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox2,newdata=data.frame(trt=0),conf.int = F),col='green')
+    
+    plot(survfit(s.weib2 ~ trt,data=dat.weib2))
+    lines(predict(sExp3, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp3, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.weib2 ~ trt,data=dat.weib2))
+    lines(predict(sWei3, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei3, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.weib2 ~ trt,data=dat.weib2))
+    lines(survfit(sCox3,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox3,newdata=data.frame(trt=0),conf.int = F),col='green')
+   
+    plot(survfit(s.weib5 ~ trt,data=dat.weib5))
+    lines(predict(sExp4, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp4, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.weib5 ~ trt,data=dat.weib5))
+    lines(predict(sWei4, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei4, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.weib5 ~ trt,data=dat.weib5))
+    lines(survfit(sCox4,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox4,newdata=data.frame(trt=0),conf.int = F),col='green')
+    
+    plot(survfit(s.lognorm ~ trt,data=dat.lognorm))
+    lines(predict(sExp5, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp5, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.lognorm ~ trt,data=dat.lognorm))
+    lines(predict(sWei5, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei5, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.lognorm ~ trt,data=dat.lognorm))
+    lines(survfit(sCox5,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox5,newdata=data.frame(trt=0),conf.int = F),col='green')
+    
+    plot(survfit(s.piecewise ~ trt,data=dat.piecewise))
+    lines(predict(sExp6, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp6, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.piecewise ~ trt,data=dat.piecewise))
+    lines(predict(sWei6, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei6, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.piecewise ~ trt,data=dat.piecewise))
+    lines(survfit(sCox6,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox6,newdata=data.frame(trt=0),conf.int = F),col='green')
 ```
 
 
 
-```{r}
+```{r,include=FALSE,echo=FALSE,eval=FALSE}
 #plot hazards: 
 
 set.seed(1729)

@@ -100,13 +100,7 @@ We simulated survival data from six different baseline hazard distributions, usi
 Altogether, 1000 survival datasets containing 100 samples were simulated for each baseline hazard function. Each dataset was used to fit all three proportional hazards models and extract the estimated treatment effects ($\beta$).
 
 # Results
-To assess model performance, we plotted the survival probability versus time of all models with a sample from each simulation scheme. We also used mean-squared error (MSE) to check model performance. 
-
-\begin{figure} [H]
-{
-\includegraphics[]{Gamma_0.5.png}
-}
-\end{figure}
+To assess model performance, we plotted the survival probability versus time for all three models with a sample from each of the six simulation schemes. We also used mean-squared error (MSE) to check model performance.
 
 ```{r suv vs time (0.5), echo=FALSE,include=FALSE}
 pp <- readPNG("Gamma_0.5.png")
