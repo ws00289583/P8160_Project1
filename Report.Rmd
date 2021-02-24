@@ -29,7 +29,7 @@ Survival analysis is used to analyze time-to-event data (e.g., time to symptom o
 
 One purpose of proportional hazards modeling is to assess the effectiveness of a particular treatment ($X$) over survival time $T$, where the hazard ratio for patient $i$ at time $t$ is defined as $h_i(t)=h_0(t)e^{x_i\beta}$. Here, $h_0(t)$ denotes the pre-specified baseline hazard function, $x_i$ indicates treatment allocation (0=control, 1=treatment), and $\beta$ represents the log hazard ratio, or the hazard reduction among treated individuals compared to the control group. Thus, the proportional hazard can be expressed as $\frac{h(t|x_0)}{h(t|x_1)}=e^{\beta(x_0-x_1)}$, which is independent of survival time $t$.\par
 
-We consider three proportional hazards models (exponential, Weibull, and Cox). The exponential and Weibull models can implement different baseline hazard functions, while the Cox model estimates $\beta$ without this specification. It is important to mention that even if the baseline hazard function is known, the Cox model is still expected to perform well due to its semi-parametric efficiency (Anderson et al, 1982). All three models impose the restraint that the effect of the treatment be multiplicative on the hazard curve. The baseline hazard curves we consider are shown in Figure 1 below.\par
+We consider three proportional hazards models (exponential, Weibull, and Cox). The exponential and Weibull models  implement their respective baseline hazard functions, while the Cox model estimates $\beta$ without this specification. It is important to mention that even if the baseline hazard function is known, the Cox model is still expected to perform well due to its semi-parametric efficiency (Anderson et al, 1982). All three models impose the restraint that the effect of the treatment be multiplicative on the hazard curve. The baseline hazard curves we consider are shown in Figure 1 below.\par
 
 # Simulation Design
 
@@ -321,19 +321,19 @@ MSE = function(beta, n=1000) {
 
 MSE_table = tibble(
   Model = c("Exponential", "Weibull", "Cox"),
-  Exponential = c(MSE(result_1$exp_beta), MSE(result_1$weibull_beta), MSE(result_1$cox_beta)),
-  "Weibull(0.5)" = c(MSE(result_0.5$exp_beta), MSE(result_0.5$weibull_beta), MSE(result_0.5$cox_beta)),
-  "Weibull(2)" = c(MSE(result_2$exp_beta), MSE(result_2$weibull_beta), MSE(result_2$cox_beta)),
-  "Weibull(5)" = c(MSE(result_5$exp_beta), MSE(result_5$weibull_beta), MSE(result_5$cox_beta)),
-  Lognormal = c(MSE(result_ln$exp_beta), MSE(result_ln$weibull_beta), MSE(result_ln$cox_beta)),
-  Piecewise = c(MSE(result_pw$exp_beta), MSE(result_pw$weibull_beta), MSE(result_pw$cox_beta))
+  Exponential = round(c(MSE(result_1$exp_beta), MSE(result_1$weibull_beta), MSE(result_1$cox_beta)), 4),
+  "Weibull(0.5)" = round(c(MSE(result_0.5$exp_beta), MSE(result_0.5$weibull_beta), MSE(result_0.5$cox_beta)),4),
+  "Weibull(2)" = round(c(MSE(result_2$exp_beta), MSE(result_2$weibull_beta), MSE(result_2$cox_beta)), 4),
+  "Weibull(5)" = round(c(MSE(result_5$exp_beta), MSE(result_5$weibull_beta), MSE(result_5$cox_beta)),4),
+  Lognormal = round(c(MSE(result_ln$exp_beta), MSE(result_ln$weibull_beta), MSE(result_ln$cox_beta)),4),
+  Piecewise = round(c(MSE(result_pw$exp_beta), MSE(result_pw$weibull_beta), MSE(result_pw$cox_beta)),4)
 ) %>% # MSE of 1000 beta
   knitr::kable()
 MSE_table
 ```
 
 
-\small Table 2. MSEs from three models using 1000 simulations. Weibull models are denoted as Weibull($\gamma$).
+\small Table 2. MSEs from three models using 1000 simulations. Weibull base hazard functions are denoted as Weibull($\gamma$).
 
 
 \bigskip
@@ -354,7 +354,7 @@ mean_sd_beta
 ```
 
 
-\small Table 3. Mean (SD) of $\hat{\beta}$ from three models using 1000 simulations. Weibull models are denoted as Weibull($\gamma$).
+\small Table 3. Mean (SD) of $\hat{\beta}$ from three models using 1000 simulations. Weibull base hazard functions are denoted as Weibull($\gamma$).
 
 
 \bigskip
@@ -370,7 +370,7 @@ By comparing the Mean square error(MSE) and mean of $\beta$ derived from three m
 
 For example, the exponential and Weibull models obtained high MSEs and biased means (...) of $\beta$  in data simulated by the lognormal or piecewise distribution. We further confirmed the deviated estimation through of survival curves in Figure 2, where we see the Weibull and exponential model can not provide the a fitted curve to match the observed. For these simulations, the Cox model provided small MSE values, and the fitted curve of Cox PH model was quite consistent with the observed data. Thus we demonstrated that Cox model can estimate the treatment effect with high accuracy and precision compared to a misspecified distribution, as expected. 
 
-On the other hand, in the case of the impact of fitting too complicated a model when an simpler model is sufficient, we found that there were minimal consequenses of the more complex models, in terms of MSE. For example, when fitting models on data from an exponential distribution, all three had very similar levels of MSE. There was no case where the Cox model performed significantly worse than other models, in terms of MSE. This confirms the finding that the Cox proportional hazard model is semi-parametrically efficient, as even when a simpler model would suffice it still performs well. The Cox model's good perfomance in these cases is further demonstrated in Figure 2, where we see it follows the observed data closely, regardless of the underlying hazard curve the data was sampled from.
+On the other hand, in the case of the impact of fitting too complicated a model when an simpler model is sufficient, we found that there were minimal consequences of the more complex models, in terms of MSE. For example, when fitting models on data from an exponential distribution, all three had very similar levels of MSE. There was no case where the Cox model performed significantly worse than other models, in terms of MSE. This confirms the finding that the Cox proportional hazard model is semi-parametrically efficient, as even when a simpler model would suffice it still performs well. The Cox model's good performance in these cases is further demonstrated in Figure 2, where we see it follows the observed data closely, regardless of the underlying hazard curve the data was sampled from.
 
 
 # Contributions
