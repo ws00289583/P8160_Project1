@@ -8,6 +8,15 @@ output: pdf_document
 ```{r, include=FALSE}
 library(tidyverse)
 library(png)
+library(survival)
+library(quantreg)
+library(glmnet)
+library(MASS)
+library(pROC)
+library(simsurv)
+library(flexsurv)
+library(broom)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Objectives
@@ -107,59 +116,239 @@ To assess model performance, we plotted the survival probability versus time for
 
 In the figure below, we can see the impact of distribution misspecification when fitting a proportional hazard model. For example, the exponential model cannot accurately fit a baseline hazard distribution with $\gamma = 5$. For the data with lognormal or piecewise baseline hazard curves, neither the Weibull nor the exponential models follow the datas' survival curve. We also note that the Cox proportional hazard model has good fit across all 6 datasets, even when a simpler model would suffice. 
 
+<<<<<<< HEAD
 ```{r suv vs time (0.5), echo=FALSE,include=FALSE, , eval=F}
 pp <- readPNG("Gamma_0.5.png")
 plot.new() 
 rasterImage(pp,0,0,1,1)
 ```
+=======
+```{r,include=FALSE}
+################# Generate Exp or Weib dist data ###################
+cov <- data.frame(id = 1:500,
+                    trt = rbinom(500, 1, 0.5))
+  
+# Simulate the event times
+>>>>>>> a4a41f0484e1c6c4c31a0892fc35367237c0d310
 
-Figure 2. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 0.5$.
+dat.weib0.5 <- simsurv(lambdas = 0.1, 
+               gammas = 0.5, #change gamma,or use lognormal simulation
+               betas = c(trt = -0.5), 
+               x = cov)
 
+<<<<<<< HEAD
 ```{r suv vs time (1), echo=FALSE,include=FALSE, eval=F}
 pp <- readPNG("Gamma_1.png")
 plot.new() 
 rasterImage(pp,0,0,1,1)
 ```
+=======
+dat.weib0.5 <- merge(cov, dat.weib0.5)
+>>>>>>> a4a41f0484e1c6c4c31a0892fc35367237c0d310
 
-Figure 3. Survival probability versus time of each model, baseline hazard function follows Exponential distribution.
 
+<<<<<<< HEAD
 ```{r suv vs time (2), echo=FALSE,include=FALSE, , eval=F}
 pp <- readPNG("Gamma_2.png")
 plot.new() 
 rasterImage(pp,0,0,1,1)
 ```
+=======
+dat.exp <- simsurv(lambdas = 0.1, 
+               gammas = 1, #change gamma,or use lognormal simulation
+               betas = c(trt = -0.5), 
+               x = cov)
+>>>>>>> a4a41f0484e1c6c4c31a0892fc35367237c0d310
 
-Figure 4. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 2$.
+dat.exp <- merge(cov, dat.exp)
 
+<<<<<<< HEAD
 ```{r suv vs time (5), echo=FALSE,include=FALSE, , eval=F}
 pp <- readPNG("Gamma_5.png")
 plot.new() 
 rasterImage(pp,0,0,1,1)
 ```
+=======
+dat.weib2 <- simsurv(lambdas = 0.1, 
+               gammas = 2, #change gamma,or use lognormal simulation
+               betas = c(trt = -0.5), 
+               x = cov)
+>>>>>>> a4a41f0484e1c6c4c31a0892fc35367237c0d310
 
-Figure 5. Survival probability versus time of each model, baseline hazard function follows weibull distribution with $\gamma = 5$.
+dat.weib2 <- merge(cov, dat.weib2)
 
+<<<<<<< HEAD
 ```{r suv vs time logn, echo=FALSE,include=FALSE, , eval=F}
 pp <- readPNG("lognormal.png")
 plot.new() 
 rasterImage(pp,0,0,1,1)
 ```
+=======
+dat.weib5 <- simsurv(lambdas = 0.1, 
+               gammas = 5, #change gamma,or use lognormal simulation
+               betas = c(trt = -0.5), 
+               x = cov)
+>>>>>>> a4a41f0484e1c6c4c31a0892fc35367237c0d310
 
-Figure 6. Survival probability versus time of each model, baseline hazard function follows lognormal distribution.
+dat.weib5 <- merge(cov, dat.weib5)
 
+<<<<<<< HEAD
 ```{r suv vs time pw, echo=FALSE,include=FALSE, , eval=F}
 pp <- readPNG("piecewise.png")
 plot.new() 
 rasterImage(pp,0,0,1,1)
 ```
+=======
+>>>>>>> a4a41f0484e1c6c4c31a0892fc35367237c0d310
 
-Figure 7. Survival probability versus time of each model, baseline hazard function follows piecewise distribution.
+################### Generate lognormal dist data ###################
+# log-norm hazard fn
+haz <- function(t, x, betas, mu, sigma) {
+  exp(betas * (x)) * ((1/t*sigma)*dnorm(log(t)/sigma,mean=mu,sd=sigma))/
+    (pnorm(-log(t)/sigma,mean=mu,sd=sigma))
+}
+# sim log-norm data
+cov <- data.frame(trt = rbinom(100, 1, 0.5))
+dat.lognorm <- cbind(simsurv(hazard = haz, 
+                 x = cov,
+                 mu = 0, 
+                 sigma = 0.5,
+                 betas = c(trt = -0.5)), 
+                 cov)
   
+<<<<<<< HEAD
 In Table 2, for the six baseline hazard curves we calculate the MSE of the three models estimates for $\beta$. The Weibull model had the lowest MSE for data simulated from a Weibull hazard curve with $\gamma = 2,5$. The Cox proportional hazard model achieves lowest MSE among data simulated from exponential, Weibull with $\gamma = 0.5$, lognormal, and piecewise hazard curves. While the exponential model by MSE never performed best, its performance was nearly identical to the Cox model for data simulated from an exponential distribution. Similarly, for data from a Weibull with $\gamma = 0.5$, the Cox performed only slightly better. 
   
 \bigskip
 
 
+=======
+
+################### Generate piece-wise dist data ###################
+set.seed(1729)
+ncuts <- 19
+cuts <- sort(rexp(ncuts, rate = 0.1))
+pw_times <- c(0, cuts)
+N <- length(pw_times)
+pw_haz <- sort(abs(rnorm(N)))
+pw_haz <- abs(pw_haz - median(pw_haz))
+
+haz <- function(t, x, betas, lb_interval, haz_interval, ...) {
+  exp(betas * (x)) * haz_interval[findInterval(t, lb_interval)]
+}
+
+cov <- data.frame(trt = rbinom(100, 1, 0.5))
+dat.piecewise <- cbind(simsurv(hazard = haz, 
+                 x = cov,
+                 lb_interval = pw_times, 
+                 haz_interval = pw_haz, 
+                 betas = c(trt = -0.5)), 
+               cov)
+
+# Merge the simulated event times onto covariate data frame
+# No parameters need to be changed
+s.weib0.5 <- with(dat.weib0.5,Surv(eventtime,status))
+s.exp <- with(dat.exp,Surv(eventtime,status))
+s.weib2 <- with(dat.weib2,Surv(eventtime,status))
+s.weib5 <- with(dat.weib5,Surv(eventtime,status))
+s.lognorm <- with(dat.lognorm,Surv(eventtime,status))
+s.piecewise <- with(dat.piecewise,Surv(eventtime,status))
+
+sExp1 <- survreg(s.weib0.5 ~ as.factor(trt),dist='exp',data=dat.weib0.5)
+sExp2 <- survreg(s.exp ~ as.factor(trt),dist='exp',data=dat.exp)
+sExp3 <- survreg(s.weib2 ~ as.factor(trt),dist='exp',data=dat.weib2)
+sExp4 <- survreg(s.weib5 ~ as.factor(trt),dist='exp',data=dat.weib5)
+sExp5 <- survreg(s.lognorm ~ as.factor(trt),dist='exp',data=dat.lognorm)
+sExp6 <- survreg(s.piecewise ~ as.factor(trt),dist='exp',data=dat.piecewise)
+
+sWei1 <- survreg(s.weib0.5 ~ as.factor(trt),dist='weibull',data=dat.weib0.5)
+sWei2 <- survreg(s.exp ~ as.factor(trt),dist='weibull',data=dat.exp)
+sWei3 <- survreg(s.weib2 ~ as.factor(trt),dist='weibull',data=dat.weib2)
+sWei4 <- survreg(s.weib5 ~ as.factor(trt),dist='weibull',data=dat.weib5)
+sWei5 <- survreg(s.lognorm ~ as.factor(trt),dist='weibull',data=dat.lognorm)
+sWei6 <- survreg(s.piecewise ~ as.factor(trt),dist='weibull',data=dat.piecewise)
+
+sCox1 <- coxph(s.weib0.5 ~ trt,data=dat.weib0.5)
+sCox2 <- coxph(s.exp ~ trt,data=dat.exp)
+sCox3 <- coxph(s.weib2 ~ trt,data=dat.weib2)
+sCox4 <- coxph(s.weib5 ~ trt,data=dat.weib5)
+sCox5 <- coxph(s.lognorm ~ trt,data=dat.lognorm)
+sCox6 <- coxph(s.piecewise~ trt,data=dat.piecewise)
+
+```
+\newpage
+```{r,fig.align='center',fig.height=20,fig.width=10}
+
+#fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
+#baseline <- basehaz(sCox)
+
+par(mfrow=c(6,3),pty="m")
+par(mar = c(6, 6, 3, 0), oma = c(1, 1, 1, 1))
+ 
+    plot(survfit(s.exp ~ trt,data=dat.exp),ylab = 'Exponential',main="Exponential",cex.axis=1.8,cex.lab=2,cex.main=2)
+    lines(predict(sExp2, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp2, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.exp ~ trt,data=dat.exp),main = 'Weibull',cex.main = 2,cex.axis=1.8,cex.lab=2)
+    lines(predict(sWei2, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei2, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.exp ~ trt,data=dat.exp),main = 'Cox',cex.main = 2,cex.axis=1.8,cex.lab=2)
+    lines(survfit(sCox2,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox2,newdata=data.frame(trt=0),conf.int = F),col='green')
+
+
+    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),ylab = 'Weibull (0.5)',cex.axis=1.8,cex.lab=2)
+    lines(predict(sExp1, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp1, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),cex.axis=1.8,cex.lab=2)
+    lines(predict(sWei1, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei1, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),cex.axis=1.8,cex.lab=2)
+    lines(survfit(sCox1,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox1,newdata=data.frame(trt=0),conf.int = F),col='green')
+    
+    plot(survfit(s.weib2 ~ trt,data=dat.weib2),ylab = 'Weibull (2)',cex.axis=1.8,cex.lab=2)
+    lines(predict(sExp3, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp3, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.weib2 ~ trt,data=dat.weib2),cex.axis=1.8)
+    lines(predict(sWei3, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei3, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.weib2 ~ trt,data=dat.weib2),cex.axis=1.8)
+    lines(survfit(sCox3,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox3,newdata=data.frame(trt=0),conf.int = F),col='green')
+   
+    plot(survfit(s.weib5 ~ trt,data=dat.weib5),ylab = 'Weibull (5)',cex.axis=1.8,cex.lab=2)
+    lines(predict(sExp4, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp4, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.weib5 ~ trt,data=dat.weib5),cex.axis=1.8)
+    lines(predict(sWei4, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei4, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.weib5 ~ trt,data=dat.weib5),cex.axis=1.8)
+    lines(survfit(sCox4,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox4,newdata=data.frame(trt=0),conf.int = F),col='green')
+    
+    plot(survfit(s.lognorm ~ trt,data=dat.lognorm),ylab = 'Lognormal',cex.axis=1.8,cex.lab=2)
+    lines(predict(sExp5, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp5, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.lognorm ~ trt,data=dat.lognorm),cex.axis=1.8)
+    lines(predict(sWei5, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei5, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.lognorm ~ trt,data=dat.lognorm),cex.axis=1.8)
+    lines(survfit(sCox5,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox5,newdata=data.frame(trt=0),conf.int = F),col='green')
+    
+    plot(survfit(s.piecewise ~ trt,data=dat.piecewise),xlab = "t",ylab = 'Piecewise',cex.axis=1.8,cex.lab=2)
+    lines(predict(sExp6, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp6, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.piecewise ~ trt,data=dat.piecewise),xlab = "t",cex.axis=1.8,cex.lab=2)
+    lines(predict(sWei6, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei6, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.piecewise ~ trt,data=dat.piecewise),xlab = "t",cex.axis=1.8,cex.lab=2)
+    lines(survfit(sCox6,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox6,newdata=data.frame(trt=0),conf.int = F),col='green')
+```
+
+Figure 2: Survival probabilities versus time for all models and baseline hazard functions.
+>>>>>>> a4a41f0484e1c6c4c31a0892fc35367237c0d310
 
 ```{r, include=FALSE}
 path_to_gamma0.5= "./results_gamma0.5.csv"

@@ -1,6 +1,6 @@
 ---
 title: "visualization"
-output: html_document
+output: pdf_document
 editor_options: 
   chunk_output_type: console
 ---
@@ -13,7 +13,6 @@ library(MASS)
 library(pROC)
 library(simsurv)
 library(flexsurv)
-library(tidyverse)
 library(broom)
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -124,71 +123,73 @@ sCox5 <- coxph(s.lognorm ~ trt,data=dat.lognorm)
 sCox6 <- coxph(s.piecewise~ trt,data=dat.piecewise)
 
 ```
-
-```{r,fig.align=center}
+\newpage
+```{r,fig.align='center',fig.height=20,fig.width=10}
 
 #fKM <- survfit(s ~ trt,data=dat) # fit the data using survfit() method in black line as reference.
 #baseline <- basehaz(sCox)
 
 par(mfrow=c(6,3),pty="m")
+par(mar = c(6, 6, 3, 0), oma = c(1, 1, 1, 1))
+ 
+    plot(survfit(s.exp ~ trt,data=dat.exp),ylab = 'Exponential',main="Exponential",cex.axis=1.8,cex.lab=2,cex.main=2)
+    lines(predict(sExp2, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    lines(predict(sExp2, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
+    plot(survfit(s.exp ~ trt,data=dat.exp),main = 'Weibull',cex.main = 2,cex.axis=1.8,cex.lab=2)
+    lines(predict(sWei2, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    lines(predict(sWei2, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
+    plot(survfit(s.exp ~ trt,data=dat.exp),main = 'Cox',cex.main = 2,cex.axis=1.8,cex.lab=2)
+    lines(survfit(sCox2,newdata=data.frame(trt=1),conf.int = F),col='green')
+    lines(survfit(sCox2,newdata=data.frame(trt=0),conf.int = F),col='green')
 
-    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),main = 'Exponential')
+
+    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),ylab = 'Weibull (0.5)',cex.axis=1.8,cex.lab=2)
     lines(predict(sExp1, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
     lines(predict(sExp1, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),main = 'Weibull')
+    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),cex.axis=1.8,cex.lab=2)
     lines(predict(sWei1, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
     lines(predict(sWei1, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
-    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),main = 'Cox')
+    plot(survfit(s.weib0.5 ~ trt,data=dat.weib0.5),cex.axis=1.8,cex.lab=2)
     lines(survfit(sCox1,newdata=data.frame(trt=1),conf.int = F),col='green')
     lines(survfit(sCox1,newdata=data.frame(trt=0),conf.int = F),col='green')
     
-    plot(survfit(s.exp ~ trt,data=dat.exp))
-    lines(predict(sExp2, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    lines(predict(sExp2, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(survfit(s.exp ~ trt,data=dat.exp))
-    lines(predict(sWei2, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
-    lines(predict(sWei2, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
-    plot(survfit(s.exp ~ trt,data=dat.exp))
-    lines(survfit(sCox2,newdata=data.frame(trt=1),conf.int = F),col='green')
-    lines(survfit(sCox2,newdata=data.frame(trt=0),conf.int = F),col='green')
-    
-    plot(survfit(s.weib2 ~ trt,data=dat.weib2))
+    plot(survfit(s.weib2 ~ trt,data=dat.weib2),ylab = 'Weibull (2)',cex.axis=1.8,cex.lab=2)
     lines(predict(sExp3, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
     lines(predict(sExp3, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(survfit(s.weib2 ~ trt,data=dat.weib2))
+    plot(survfit(s.weib2 ~ trt,data=dat.weib2),cex.axis=1.8)
     lines(predict(sWei3, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
     lines(predict(sWei3, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
-    plot(survfit(s.weib2 ~ trt,data=dat.weib2))
+    plot(survfit(s.weib2 ~ trt,data=dat.weib2),cex.axis=1.8)
     lines(survfit(sCox3,newdata=data.frame(trt=1),conf.int = F),col='green')
     lines(survfit(sCox3,newdata=data.frame(trt=0),conf.int = F),col='green')
    
-    plot(survfit(s.weib5 ~ trt,data=dat.weib5))
+    plot(survfit(s.weib5 ~ trt,data=dat.weib5),ylab = 'Weibull (5)',cex.axis=1.8,cex.lab=2)
     lines(predict(sExp4, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
     lines(predict(sExp4, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(survfit(s.weib5 ~ trt,data=dat.weib5))
+    plot(survfit(s.weib5 ~ trt,data=dat.weib5),cex.axis=1.8)
     lines(predict(sWei4, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
     lines(predict(sWei4, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
-    plot(survfit(s.weib5 ~ trt,data=dat.weib5))
+    plot(survfit(s.weib5 ~ trt,data=dat.weib5),cex.axis=1.8)
     lines(survfit(sCox4,newdata=data.frame(trt=1),conf.int = F),col='green')
     lines(survfit(sCox4,newdata=data.frame(trt=0),conf.int = F),col='green')
     
-    plot(survfit(s.lognorm ~ trt,data=dat.lognorm))
+    plot(survfit(s.lognorm ~ trt,data=dat.lognorm),ylab = 'Lognormal',cex.axis=1.8,cex.lab=2)
     lines(predict(sExp5, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
     lines(predict(sExp5, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(survfit(s.lognorm ~ trt,data=dat.lognorm))
+    plot(survfit(s.lognorm ~ trt,data=dat.lognorm),cex.axis=1.8)
     lines(predict(sWei5, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
     lines(predict(sWei5, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
-    plot(survfit(s.lognorm ~ trt,data=dat.lognorm))
+    plot(survfit(s.lognorm ~ trt,data=dat.lognorm),cex.axis=1.8)
     lines(survfit(sCox5,newdata=data.frame(trt=1),conf.int = F),col='green')
     lines(survfit(sCox5,newdata=data.frame(trt=0),conf.int = F),col='green')
     
-    plot(survfit(s.piecewise ~ trt,data=dat.piecewise))
+    plot(survfit(s.piecewise ~ trt,data=dat.piecewise),xlab = "t",ylab = 'Piecewise',cex.axis=1.8,cex.lab=2)
     lines(predict(sExp6, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
     lines(predict(sExp6, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="blue")
-    plot(survfit(s.piecewise ~ trt,data=dat.piecewise))
+    plot(survfit(s.piecewise ~ trt,data=dat.piecewise),xlab = "t",cex.axis=1.8,cex.lab=2)
     lines(predict(sWei6, newdata=list(trt=0),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
     lines(predict(sWei6, newdata=list(trt=1),type="quantile",p=seq(.01,.99,by=.01)),seq(.99,.01,by=-.01),col="red")
-    plot(survfit(s.piecewise ~ trt,data=dat.piecewise))
+    plot(survfit(s.piecewise ~ trt,data=dat.piecewise),xlab = "t",cex.axis=1.8,cex.lab=2)
     lines(survfit(sCox6,newdata=data.frame(trt=1),conf.int = F),col='green')
     lines(survfit(sCox6,newdata=data.frame(trt=0),conf.int = F),col='green')
 ```
